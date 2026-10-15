@@ -45,10 +45,14 @@ export function CompanyForm({ id, priv }: { id: string | null; priv: boolean }) 
     e.preventDefault(); setErr(''); setMsg('');
     if (!f.name.trim()) return setErr('Navn mangler.');
     if (f.cvr.trim() && !/^\d{8}$/.test(f.cvr.trim())) return setErr('CVR skal være 8 cifre.');
-    if (!id && !f.sector_id) return setErr('Vælg en sektor.');
+    if (!f.sector_id) return setErr('Vælg en sektor.');
     if (!id && !branchId) return setErr('Vælg en primær branche.');
     if (hard.length) return setErr('CVR-nummeret findes allerede på en anden virksomhed. Åbn den i stedet.');
     if (!id && soft.length && !force) return setErr('Navnet findes allerede. Marker »Opret alligevel«, hvis det er en anden virksomhed.');
+    if (id) {
+      const { count } = await supabase.from('company_branch').select('branch_id', { count: 'exact', head: true }).eq('company_id', id);
+      if (!count) return setErr('Tilføj mindst én branche under Brancher nedenfor, og gem derefter.');
+    }
     setBusy(true);
     const rec = { name: f.name.trim(), cvr: nz(f.cvr), website: nz(f.website), sector_id: nz(f.sector_id), is_own: f.is_own, active: f.active };
     if (id) {
@@ -84,7 +88,7 @@ export function CompanyForm({ id, priv }: { id: string | null; priv: boolean }) 
           <Field label="Navn *"><input value={f.name} onChange={(e) => set('name', e.target.value)} autoFocus={!id} /></Field>
           <Field label="CVR" hint="8 cifre"><input value={f.cvr} inputMode="numeric" maxLength={8} onChange={(e) => set('cvr', e.target.value.replace(/\D/g, ''))} /></Field>
           <Field label="Hjemmeside"><input value={f.website} onChange={(e) => set('website', e.target.value)} placeholder="https://" /></Field>
-          <Field label={id ? 'Sektor' : 'Sektor *'}><Select value={f.sector_id} onChange={(v) => set('sector_id', v)} items={lk.data?.sector ?? []} empty={id ? 'Ikke angivet' : 'Vælg sektor...'} /></Field>
+          <Field label="Sektor *"><Select value={f.sector_id} onChange={(v) => set('sector_id', v)} items={lk.data?.sector ?? []} empty="Vælg sektor..." /></Field>
           {!id && <Field label="Primær branche *" hint="Flere brancher kan tilføjes bagefter"><BranchSelect branches={lk.data?.branch ?? []} value={branchId} onChange={setBranchId} /></Field>}
           <Field label="Egen virksomhed"><label><input type="checkbox" checked={f.is_own} onChange={(e) => set('is_own', e.target.checked)} /> Kolleger er personer her</label></Field>
           {id && <Field label="Status"><label><input type="checkbox" checked={f.active} onChange={(e) => set('active', e.target.checked)} /> Aktiv</label></Field>}
