@@ -51,7 +51,7 @@ export function Company({ id, priv }: { id: string; priv: boolean }) {
     <>
       <p className="back"><a href={href('virksomheder')} onClick={(e) => onLink(e, 'virksomheder')}>← Virksomheder</a></p>
       <div className="inline" style={{ justifyContent: 'space-between' }}>
-        <h1>{co.name} {co.is_own && <span className="tag">egen</span>} {group.some((g) => g.company.id === id && g.group_role.code === 'parent') && <span className="tag">KONCERN</span>} {!co.active && <span className="tag">inaktiv</span>}</h1>
+        <h1>{co.name} {co.is_own && <span className="tag">egen</span>} {group.some((g) => g.company.id === id && g.group_role.code === 'parent') ? <span className="tag">KONCERN</span> : group.some((g) => g.company.id === id) && <span className="tag">DATTER</span>} {!co.active && <span className="tag">inaktiv</span>}</h1>
         <span className="inline"><a href={href('visualisering', 'c:' + id)} onClick={(e) => onLink(e, 'visualisering', 'c:' + id)}><button>Vis i netværk</button></a>
         <a href={href('virksomhed-ret', id)} onClick={(e) => onLink(e, 'virksomhed-ret', id)}><button className="primary">Redigér</button></a></span>
       </div>
