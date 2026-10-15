@@ -80,3 +80,4 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Filer (PDF m.m., op til 25 MB) ligger i privat lagerbøtte `activity-files` med sti `<aktivitet>/<fil>`. Adgang følger aktivitetens synlighed. Filer åbnes via kortlivede signerede links.
 - Aktivitetsteksten skjules, når Privat visning er slået fra.
 - Kronologi pr. person og virksomhed vises på deres sider. Virksomhedens kronologi indeholder aktiviteter om virksomheden og møder, hvor en deltager repræsenterede den.
+- Netværk: personer, der har været med i samme aktivitet, forbindes med en rød linje. Linjen bliver tykkere ved flere fælles aktiviteter og viser titler og datoer, når man holder musen over. Aktiviteter med mere end 12 deltagere springes over for at undgå et filttæppe. Kan slås fra med »Fælles aktiviteter«.
