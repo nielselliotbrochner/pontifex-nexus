@@ -4,26 +4,29 @@ import { go, href } from '../lib/nav';
 import { Picker } from '../lib/form';
 import { useAsync } from '../lib/useAsync';
 
-type Opts = { persons: boolean; past: boolean; groups: boolean; links: boolean; isolated: boolean; region: string; sector: string; search: string };
+type Opts = { persons: boolean; past: boolean; groups: boolean; links: boolean; acts: boolean; isolated: boolean; region: string; sector: string; search: string };
 type GNode = { id: string; name: string; kind: 'company' | 'person' | 'group'; ref: string; own?: boolean };
-type GLink = { source: string; target: string; type: 'current' | 'past' | 'group' | 'private'; label: string };
+type GLink = { source: string; target: string; type: 'current' | 'past' | 'group' | 'private' | 'activity'; label: string; tip?: string; weight?: number };
+const esc = (t: string) => t.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+const MAX_PARTICIPANTS = 12; // større arrangementer giver et filttæppe af forbindelser og springes over
 
 // Knude-id'er: c: virksomhed, p: person, g: koncern. Nye typer (fx j: projekt) tilføjes ved at hente dem i useAsync
 // og tilføje noder og forbindelser i graph-beregningen. Fokus og dybde virker uændret for alle typer.
 export function Network({ priv, focus }: { priv: boolean; focus: string | null }) {
   const { data, error, loading } = useAsync(async () => {
-    const [companies, persons, aff, members, groups, links] = await Promise.all([
+    const [companies, persons, aff, members, groups, links, parts] = await Promise.all([
       fetchAll('v_company_overview', 'company_id, name, is_own, region, sector, active'),
       fetchAll('v_contact_overview', 'contact_id, first_name, middle_name, last_name, active, region'),
       fetchAll('contact_company', 'contact_id, company_id, end_date, affiliation_type(name)'),
       fetchAll('company_group_member', 'group_id, company_id, group_role(name)'),
       fetchAll('company_group', 'id, name'),
       priv ? fetchAll('person_link', 'contact_a, contact_b, person_link_type(name)') : Promise.resolve([] as Row[]),
+      fetchAll('activity_participant', 'activity_id, contact_id, activity(occurred_on, title, activity_type(name))', 'activity_id'),
     ]);
-    return { companies, persons, aff, members, groups, links };
+    return { companies, persons, aff, members, groups, links, parts };
   }, [priv], `network:${priv}`);
 
-  const [o, setO] = useState<Opts>({ persons: true, past: false, groups: true, links: true, isolated: false, region: '', sector: '', search: '' });
+  const [o, setO] = useState<Opts>({ persons: true, past: false, groups: true, links: true, acts: true, isolated: false, region: '', sector: '', search: '' });
   const [depth, setDepth] = useState(2);
   const set = <K extends keyof Opts>(k: K, v: Opts[K]) => setO((x) => ({ ...x, [k]: v }));
 
@@ -61,6 +64,31 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
           const a = `p:${l.contact_a}`, b = `p:${l.contact_b}`;
           if (nodes.has(a) && nodes.has(b)) links.push({ source: a, target: b, type: 'private', label: l.person_link_type?.name ?? '' });
         }
+      }
+    }
+    if (o.persons && o.acts) {
+      // Personer, der har været med i samme aktivitet, forbindes. Antal og titler vises på forbindelsen.
+      const byAct = new Map<string, Row[]>();
+      for (const r of data.parts) if (r.activity) (byAct.get(r.activity_id) ?? byAct.set(r.activity_id, []).get(r.activity_id)!).push(r);
+      const pairs = new Map<string, { a: string; b: string; items: Row[] }>();
+      for (const rows of byAct.values()) {
+        const ids = [...new Set(rows.map((r) => r.contact_id as string))].filter((id) => personById.get(id)?.active);
+        if (ids.length < 2 || ids.length > MAX_PARTICIPANTS) continue;
+        for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+          const [a, b] = ids[i] < ids[j] ? [ids[i], ids[j]] : [ids[j], ids[i]];
+          const k = `${a}|${b}`;
+          (pairs.get(k) ?? pairs.set(k, { a, b, items: [] }).get(k)!).items.push(rows[0].activity);
+        }
+      }
+      for (const { a, b, items } of pairs.values()) {
+        if (filtered && !(nodes.has(`p:${a}`) && nodes.has(`p:${b}`))) continue;
+        for (const id of [a, b]) if (!nodes.has(`p:${id}`)) { const p = personById.get(id)!; nodes.set(`p:${id}`, { id: `p:${id}`, name: fullName(p), kind: 'person', ref: id }); }
+        const sorted = [...items].sort((x, y) => String(y.occurred_on).localeCompare(x.occurred_on));
+        links.push({
+          source: `p:${a}`, target: `p:${b}`, type: 'activity', weight: items.length,
+          label: items.length === 1 ? `${sorted[0].activity_type?.name ?? 'Aktivitet'} ${sorted[0].occurred_on}` : `${items.length} aktiviteter`,
+          tip: sorted.slice(0, 6).map((x) => `${x.occurred_on} ${x.activity_type?.name ?? ''}: ${x.title}`).join('\n') + (sorted.length > 6 ? `\n+${sorted.length - 6} flere` : ''),
+        });
       }
     }
     if (o.groups) {
@@ -162,13 +190,14 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
     const style = (t: GLink['type']) => t === 'current' ? { type: 'solid', width: 1.4, opacity: 0.55, color: col.line }
       : t === 'past' ? { type: 'dashed', width: 1, opacity: 0.35, color: col.line }
       : t === 'group' ? { type: 'solid', width: 2.4, opacity: 0.8, color: col.group }
+      : t === 'activity' ? { type: 'solid', width: 2, opacity: 0.85, color: col.hi }
       : { type: 'dashed', width: 1.6, opacity: 0.9, color: col.company };
     chart.current.setOption({
       animationDuration: 400,
-      tooltip: { formatter: (p: { dataType: string; data: { name: string; label?: string; kind?: string } }) => p.dataType === 'edge' ? (p.data.label ?? '') : `${p.data.name}${p.data.kind === 'person' ? ' (person)' : p.data.kind === 'group' ? ' (koncern)' : ''}` },
+      tooltip: { formatter: (p: { dataType: string; data: { name: string; label?: string; tip?: string; kind?: string } }) => p.dataType === 'edge' ? esc([p.data.label ?? '', p.data.tip ?? ''].filter(Boolean).join('\n')).replace(/\n/g, '<br/>') : `${p.data.name}${p.data.kind === 'person' ? ' (person)' : p.data.kind === 'group' ? ' (koncern)' : ''}` },
       series: [{
         type: 'graph', layout: 'force', roam: true, zoom: focus || graph.nodes.length > 120 ? 1 : 0.8, draggable: true, data,
-        links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, lineStyle: style(l.type) })),
+        links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, tip: l.tip, lineStyle: l.type === 'activity' ? { ...style(l.type), width: 1.5 + Math.min(l.weight ?? 1, 6) } : style(l.type) })),
         edgeLabel: { show: !!focus && graph.links.length <= 60, formatter: (p: { data: { label?: string } }) => p.data.label ?? '', fontSize: 10, color: col.line },
         force: { repulsion: graph.nodes.length > 400 ? 60 : graph.nodes.length > 120 ? 140 : focus ? 600 : 380, gravity: 0.06, edgeLength: graph.nodes.length > 120 ? [20, 90] : focus ? [110, 230] : [70, 180], friction: 0.25 },
         labelLayout: { hideOverlap: true },
@@ -195,6 +224,7 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
         <label><input type="checkbox" checked={o.persons} onChange={(e) => set('persons', e.target.checked)} /> Personer</label>
         <label><input type="checkbox" checked={o.past} onChange={(e) => set('past', e.target.checked)} disabled={!o.persons} /> Tidligere tilknytninger</label>
         <label><input type="checkbox" checked={o.groups} onChange={(e) => set('groups', e.target.checked)} /> Koncerner</label>
+        <label title="Forbinder personer, der har været med i samme aktivitet"><input type="checkbox" checked={o.acts} onChange={(e) => set('acts', e.target.checked)} disabled={!o.persons} /> Fælles aktiviteter</label>
         {priv && <label><input type="checkbox" checked={o.links} onChange={(e) => set('links', e.target.checked)} disabled={!o.persons} /> Private relationer</label>}
         <label title="Viser også personer uden tilknytning, når der ikke er valgt region eller sektor"><input type="checkbox" checked={o.isolated} onChange={(e) => set('isolated', e.target.checked)} disabled={!o.persons} /> Personer uden virksomhed</label>
       </div>
@@ -209,6 +239,7 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
         <span><i className="sw sq" style={{ background: 'var(--head)' }} /> Egen virksomhed</span>
         <span><i className="sw" style={{ background: 'var(--person)' }} /> Person</span>
         <span><i className="sw dia" style={{ background: 'var(--muted)' }} /> Koncern</span>
+        <span><i className="sw" style={{ background: 'var(--accent-hover)', borderRadius: 2, height: 3 }} /> Fælles aktivitet (tykkere ved flere)</span>
         <span className="muted">Klik på en node for at centrere på den, dobbeltklik for at åbne den. Træk i noder, scroll for zoom.</span>
       </div>
       <div ref={box} className="netbox" role="img" aria-label="Netværk af virksomheder og personer" />
