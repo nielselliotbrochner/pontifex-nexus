@@ -14,3 +14,5 @@
 - **Sikkerhedskopi-schema med persondata** (`backup_20261007` i 1.x) bør droppes, når det ikke bruges. Husk at gøre det.
 - **Beskyttelse mod læste adgangskoder:** slå "leaked password protection" til i dashboardet. Det kan ikke ændres via SQL.
 - **cvrapi.dk blokerer robotter.** Hent CVR-data manuelt eller via officielt API.
+
+- **Postnumre:** Officielle API'er (DAWA, GeoNames) er blokeret fra Claude-arbejdspladsen. PostNords fil fra 2020 via npm-pakken `dk-postals` bruges. Et postnummer kan ligge i flere kommuner og regioner (22 markeret). Kommune er vejledende.
