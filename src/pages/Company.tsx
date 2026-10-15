@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { fullName, type Row } from '../lib/data';
 import { onLink, href } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
+import { SkeletonCards } from '../lib/ui';
 
 export function Company({ id, priv }: { id: string; priv: boolean }) {
   const { data, error, loading } = useAsync(async () => {
@@ -19,10 +20,10 @@ export function Company({ id, priv }: { id: string; priv: boolean }) {
       ? ((ok(await supabase.from('company_group_member').select('group_id, company(id,name), group_role(name, code)').in('group_id', groupIds)) ?? []) as Row[])
       : [];
     return { co: co as Row | null, locs: (locs ?? []) as Row[], br: (br ?? []) as Row[], people: (people ?? []) as Row[], group, rel: rel as Row | null };
-  }, [id]);
+  }, [id], `company:${id}`);
 
   if (error) return <p className="err">{error}</p>;
-  if (loading || !data) return <p className="muted">Henter...</p>;
+  if (loading || !data) return <SkeletonCards />;
   const { co, locs, br, people, group, rel } = data;
   if (!co) return <p>Virksomheden findes ikke.</p>;
   const cur = people.filter((p) => !p.end_date).sort((a, b) => (a.level?.sort_order ?? 99) - (b.level?.sort_order ?? 99));
@@ -48,7 +49,7 @@ export function Company({ id, priv }: { id: string; priv: boolean }) {
 
   return (
     <>
-      <p><a href={href('virksomheder')} onClick={(e) => onLink(e, 'virksomheder')}>← Virksomheder</a></p>
+      <p className="back"><a href={href('virksomheder')} onClick={(e) => onLink(e, 'virksomheder')}>← Virksomheder</a></p>
       <h1>{co.name} {co.is_own && <span className="tag">egen</span>} {!co.active && <span className="tag">inaktiv</span>}</h1>
       <div className="grid">
         <div className="card"><h3>Stamdata</h3>

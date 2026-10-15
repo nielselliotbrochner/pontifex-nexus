@@ -10,9 +10,9 @@ import { Company } from './pages/Company';
 import { Admin } from './pages/Admin';
 
 const MIN_PASSWORD = 12;
-const page: React.CSSProperties = { fontFamily: 'system-ui, sans-serif', maxWidth: 420, margin: '10vh auto', padding: 24 };
-const field: React.CSSProperties = { display: 'block', width: '100%', padding: 10, margin: '6px 0 14px', boxSizing: 'border-box' };
-const btn: React.CSSProperties = { padding: '10px 16px', marginRight: 8, cursor: 'pointer' };
+const page: React.CSSProperties = {};
+const field: React.CSSProperties = {};
+const btn: React.CSSProperties = {};
 
 type Access = { role: string; active: boolean } | null;
 
@@ -33,7 +33,7 @@ export function App() {
     return () => data.subscription.unsubscribe();
   }, []);
 
-  if (!ready) return <main style={page}>Indlæser...</main>;
+  if (!ready) return <main className="login"><div className="skel" style={{ width: '50%' }} /></main>;
   if (!session) return <Login />;
   return <Home session={session} needsPassword={needsPassword} onPasswordSet={() => setNeedsPassword(false)} />;
 }
@@ -65,12 +65,12 @@ function Login() {
   }
 
   return (
-    <main style={page}>
+    <main className="login">
       <h1>PONTIFEX Nexus</h1>
       <form onSubmit={signInPassword}>
         <label>E-mail<input style={field} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" /></label>
         <label>Adgangskode<input style={field} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" /></label>
-        <button style={btn} type="submit">Log ind</button>
+        <button className="primary" type="submit">Log ind</button>
         <button style={btn} type="button" onClick={sendLink}>Send login-link</button>
       </form>
       {msg && <p role="status">{msg}</p>}
@@ -96,10 +96,10 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
     try { localStorage.setItem('nexus.priv', v ? '1' : '0'); } catch { /* ignoreres */ }
   }
 
-  if (!loaded) return <main style={page}>Indlæser...</main>;
+  if (!loaded) return <main className="login">Indlæser...</main>;
   if (!access?.active) {
     return (
-      <main style={page}>
+      <main className="login">
         <h1>PONTIFEX Nexus</h1>
         <p>Din konto har endnu ikke fået adgang. Bed ejeren om at aktivere den.</p>
         <button style={btn} onClick={() => supabase.auth.signOut()}>Log ud</button>
@@ -161,7 +161,7 @@ function Account({ email, needsPassword, onPasswordSet }: { email: string; needs
         <label>{needsPassword ? 'Vælg adgangskode' : 'Skift adgangskode'} (mindst {MIN_PASSWORD} tegn)
           <input style={field} type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
         </label>
-        <button style={btn} type="submit">Gem adgangskode</button>
+        <button className="primary" type="submit">Gem adgangskode</button>
       </form>
       {msg && <p role="status">{msg}</p>}
     </div>

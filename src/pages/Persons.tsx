@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { fetchAll, fullName, type Row } from '../lib/data';
 import { onLink, href } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
+import { arrowNav, SkeletonRows } from '../lib/ui';
 
 export function Persons({ priv }: { priv: boolean }) {
   const { data, error, loading } = useAsync(async () => {
@@ -11,7 +12,7 @@ export function Persons({ priv }: { priv: boolean }) {
     ]);
     const acq = new Map<string, Row>(rel.map((r) => [r.contact_id, r.acquaintance]));
     return people.map((p): Row => ({ ...p, acq: acq.get(p.contact_id) ?? null }));
-  }, []);
+  }, [], 'persons');
   const [q, setQ] = useState('');
   const [region, setRegion] = useState('');
   const [level, setLevel] = useState('');
@@ -41,11 +42,12 @@ export function Persons({ priv }: { priv: boolean }) {
         <select value={fn} onChange={(e) => setFn(e.target.value)}><option value="">Alle funktioner</option>{opts('job_function').map((o) => <option key={o}>{o}</option>)}</select>
         {priv && <select value={acq} onChange={(e) => setAcq(e.target.value)}><option value="">Alt kendskab</option>{acqOpts.map((o) => <option key={o}>{o}</option>)}</select>}
       </div>
-      <div className="count">{loading ? 'Henter...' : `${shown.length} af ${rows.length} personer`}</div>
-      <div className="tablewrap">
+      <div className="count">{loading ? '\u00a0' : `${shown.length} af ${rows.length} personer`}</div>
+      <div className="tablewrap" onKeyDown={arrowNav}>
         <table>
           <thead><tr><th>Navn</th><th>Virksomhed</th><th>Niveau</th><th>Funktion</th><th>By</th><th>Region</th>{priv && <th>Kendskab</th>}</tr></thead>
           <tbody>
+            {loading && <SkeletonRows cols={priv ? 7 : 6} />}
             {shown.map((r) => (
               <tr key={r.contact_id}>
                 <td><a href={href('person', r.contact_id)} onClick={(e) => onLink(e, 'person', r.contact_id)}>{fullName(r)}</a>{!r.active && <span className="tag">inaktiv</span>}</td>

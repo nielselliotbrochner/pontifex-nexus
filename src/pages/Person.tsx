@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { fullName, type Row } from '../lib/data';
 import { onLink, href } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
+import { SkeletonCards } from '../lib/ui';
 
 export function Person({ id, priv }: { id: string; priv: boolean }) {
   const { data, error, loading } = useAsync(async () => {
@@ -15,17 +16,17 @@ export function Person({ id, priv }: { id: string; priv: boolean }) {
     const otherIds = ((links ?? []) as Row[]).map((l) => (l.contact_a === id ? l.contact_b : l.contact_a));
     const others = otherIds.length ? (ok(await supabase.from('contact').select('id, first_name, last_name').in('id', otherIds)) ?? []) : [];
     return { c: c as Row | null, aff: (aff ?? []) as Row[], rel: rel as Row | null, links: (links ?? []) as Row[], others: others as Row[] };
-  }, [id]);
+  }, [id], `person:${id}`);
 
   if (error) return <p className="err">{error}</p>;
-  if (loading || !data) return <p className="muted">Henter...</p>;
+  if (loading || !data) return <SkeletonCards />;
   const { c, aff, rel, links, others } = data;
   if (!c) return <p>Personen findes ikke.</p>;
   const name = new Map(others.map((o) => [o.id, fullName(o)]));
 
   return (
     <>
-      <p><a href={href('personer')} onClick={(e) => onLink(e, 'personer')}>← Personer</a></p>
+      <p className="back"><a href={href('personer')} onClick={(e) => onLink(e, 'personer')}>← Personer</a></p>
       <h1>{fullName(c)} {!c.active && <span className="tag">inaktiv</span>}</h1>
       <div className="grid">
         <div className="card"><h3>Kontakt</h3>

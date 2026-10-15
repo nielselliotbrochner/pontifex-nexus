@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { fetchAll } from '../lib/data';
 import { onLink, href } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
+import { arrowNav, SkeletonRows } from '../lib/ui';
 
 export function Companies() {
-  const { data, error, loading } = useAsync(() => fetchAll('v_company_overview', '*', 'name'), []);
+  const { data, error, loading } = useAsync(() => fetchAll('v_company_overview', '*', 'name'), [], 'companies');
   const [q, setQ] = useState('');
   const [region, setRegion] = useState('');
   const [sector, setSector] = useState('');
@@ -28,11 +29,12 @@ export function Companies() {
         <select value={sector} onChange={(e) => setSector(e.target.value)}><option value="">Alle sektorer</option>{opts('sector').map((o) => <option key={o}>{o}</option>)}</select>
         <label><input type="checkbox" checked={own} onChange={(e) => setOwn(e.target.checked)} /> Kun egen virksomhed</label>
       </div>
-      <div className="count">{loading ? 'Henter...' : `${shown.length} af ${rows.length} virksomheder`}</div>
-      <div className="tablewrap">
+      <div className="count">{loading ? '\u00a0' : `${shown.length} af ${rows.length} virksomheder`}</div>
+      <div className="tablewrap" onKeyDown={arrowNav}>
         <table>
           <thead><tr><th>Navn</th><th>CVR</th><th>Sektor</th><th>Primær branche</th><th>Hovedkontor</th><th>Region</th><th>Personer</th></tr></thead>
           <tbody>
+            {loading && <SkeletonRows cols={7} />}
             {shown.map((r) => (
               <tr key={r.company_id}>
                 <td><a href={href('virksomhed', r.company_id)} onClick={(e) => onLink(e, 'virksomhed', r.company_id)}>{r.name}</a>{r.is_own && <span className="tag">egen</span>}{!r.active && <span className="tag">inaktiv</span>}</td>

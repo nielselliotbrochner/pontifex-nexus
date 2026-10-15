@@ -135,7 +135,7 @@ function Schema() {
   const [showCols, setShowCols] = useState(false);
   const [hideOwner, setHideOwner] = useState(true);
   const [svg, setSvg] = useState('');
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(150);
   const [renderErr, setRenderErr] = useState('');
   const seq = useRef(0);
 
@@ -145,7 +145,8 @@ function Schema() {
     (async () => {
       try {
         const mermaid = (await import('mermaid')).default;
-        mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'strict', er: { useMaxWidth: false } });
+        mermaid.initialize({ startOnLoad: false, theme: 'base', securityLevel: 'strict', er: { useMaxWidth: false },
+          themeVariables: { primaryColor: '#F2E2D5', primaryBorderColor: '#BA1223', primaryTextColor: '#241c1b', lineColor: '#700B15', fontFamily: 'Aptos, Segoe UI, system-ui, sans-serif' } });
         const out = await mermaid.render(`er${n}`, mermaidSource(data, showCols, hideOwner));
         if (n === seq.current) { setSvg(out.svg); setRenderErr(''); }
       } catch (e) { if (n === seq.current) setRenderErr(e instanceof Error ? e.message : String(e)); }
@@ -161,7 +162,7 @@ function Schema() {
       <div className="filters">
         <label><input type="checkbox" checked={showCols} onChange={(e) => setShowCols(e.target.checked)} /> Vis kolonner i diagram</label>
         <label><input type="checkbox" checked={hideOwner} onChange={(e) => setHideOwner(e.target.checked)} /> Skjul relationer til brugertabel (created_by, owner_id)</label>
-        <label>Zoom <select value={zoom} onChange={(e) => setZoom(Number(e.target.value))}>{[60, 100, 150, 200, 300].map((z) => <option key={z} value={z}>{z === 100 ? 'Tilpas bredde' : `${z} %`}</option>)}</select></label>
+        <label>Zoom <select value={zoom} onChange={(e) => setZoom(Number(e.target.value))}>{[100, 150, 200, 300].map((z) => <option key={z} value={z}>{z === 100 ? 'Tilpas bredde' : `${z} %`}</option>)}</select></label>
         <span className="muted">{data.length} tabeller</span>
       </div>
       {renderErr && <p className="err">Diagram kunne ikke tegnes: {renderErr}</p>}
