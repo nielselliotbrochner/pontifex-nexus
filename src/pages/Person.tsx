@@ -27,7 +27,10 @@ export function Person({ id, priv }: { id: string; priv: boolean }) {
   return (
     <>
       <p className="back"><a href={href('personer')} onClick={(e) => onLink(e, 'personer')}>← Personer</a></p>
-      <h1>{fullName(c)} {!c.active && <span className="tag">inaktiv</span>}</h1>
+      <div className="inline" style={{ justifyContent: 'space-between' }}>
+        <h1>{fullName(c)} {!c.active && <span className="tag">inaktiv</span>}</h1>
+        <a href={href('person-ret', id)} onClick={(e) => onLink(e, 'person-ret', id)}><button className="primary">Redigér</button></a>
+      </div>
       <div className="grid">
         <div className="card"><h3>Kontakt</h3>
           <dl className="kv">

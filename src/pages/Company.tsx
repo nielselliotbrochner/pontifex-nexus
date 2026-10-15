@@ -50,7 +50,10 @@ export function Company({ id, priv }: { id: string; priv: boolean }) {
   return (
     <>
       <p className="back"><a href={href('virksomheder')} onClick={(e) => onLink(e, 'virksomheder')}>← Virksomheder</a></p>
-      <h1>{co.name} {co.is_own && <span className="tag">egen</span>} {!co.active && <span className="tag">inaktiv</span>}</h1>
+      <div className="inline" style={{ justifyContent: 'space-between' }}>
+        <h1>{co.name} {co.is_own && <span className="tag">egen</span>} {!co.active && <span className="tag">inaktiv</span>}</h1>
+        <a href={href('virksomhed-ret', id)} onClick={(e) => onLink(e, 'virksomhed-ret', id)}><button className="primary">Redigér</button></a>
+      </div>
       <div className="grid">
         <div className="card"><h3>Stamdata</h3>
           <dl className="kv">

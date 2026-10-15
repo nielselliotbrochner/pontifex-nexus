@@ -56,7 +56,7 @@ declare
   r record; d jsonb; rep jsonb := '[]'::jsonb;
   act text; msg text; rid uuid;
   v_name text; v_cvr text; v_sector uuid; cid uuid; n int; v_pc text; v_city text; gid uuid; v_grp text;
-  v_first text; v_last text; v_email text; v_li text; v_norm text; v_ref text; v_comp uuid;
+  v_first text; v_middle text; v_last text; v_email text; v_li text; v_norm text; v_ref text; v_comp uuid;
   v_type uuid; v_level uuid; v_fn uuid; v_start date; v_end date; v_prim boolean; v_acq uuid;
 begin
   if not exists (select 1 from public.app_user where user_id = p_owner and role = 'owner' and active) then
@@ -68,7 +68,7 @@ begin
     -- Virksomheder
     for r in select * from public.import_row where batch = p_batch and kind = 'company' order by id loop
       begin
-        d := r.data; act := null; msg := null; rid := null;
+        d := r.data; act := null; msg := null; rid := null; v_name := null;
         v_name := nullif(btrim(d->>'name'), '');
         if v_name is null then raise exception 'Navn mangler'; end if;
         v_cvr := nullif(regexp_replace(coalesce(d->>'cvr', ''), '\D', '', 'g'), '');
@@ -141,6 +141,7 @@ begin
         d := r.data; act := null; msg := null; rid := null; cid := null; v_comp := null; v_first := null; v_last := null;
         v_first := nullif(btrim(d->>'first_name'), '');
         if v_first is null then raise exception 'Fornavn mangler'; end if;
+        v_middle := nullif(btrim(d->>'middle_name'), '');
         v_last := nullif(btrim(d->>'last_name'), '');
         v_email := nullif(lower(btrim(d->>'email')), '');
         if v_email is not null and position('@' in v_email) < 2 then raise exception 'Ugyldig e-mail: %', v_email; end if;
@@ -172,11 +173,11 @@ begin
           v_acq := private.imp_lookup('acquaintance', d->>'acquaintance');
 
           if cid is null then
-            insert into public.contact (first_name, last_name, email, phone, linkedin_url, created_by)
-            values (v_first, v_last, v_email, nullif(btrim(d->>'phone'), ''), v_li, p_owner) returning id into cid;
+            insert into public.contact (first_name, middle_name, last_name, email, phone, linkedin_url, created_by)
+            values (v_first, v_middle, v_last, v_email, nullif(btrim(d->>'phone'), ''), v_li, p_owner) returning id into cid;
             act := 'created';
           else
-            update public.contact set email = coalesce(email, v_email), phone = coalesce(phone, nullif(btrim(d->>'phone'), '')),
+            update public.contact set middle_name = coalesce(middle_name, v_middle), email = coalesce(email, v_email), phone = coalesce(phone, nullif(btrim(d->>'phone'), '')),
                    linkedin_url = coalesce(linkedin_url, v_li) where id = cid;
             act := 'matched';
           end if;

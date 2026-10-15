@@ -8,6 +8,8 @@ import { Companies } from './pages/Companies';
 import { Person } from './pages/Person';
 import { Company } from './pages/Company';
 import { Admin } from './pages/Admin';
+import { PersonForm } from './pages/PersonForm';
+import { CompanyForm } from './pages/CompanyForm';
 
 const MIN_PASSWORD = 12;
 const page: React.CSSProperties = {};
@@ -117,8 +119,8 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
       <header className="top">
         <span className="brand">PONTIFEX Nexus</span>
         <nav>
-          {tab('personer', 'Personer', ['personer', 'person'])}
-          {tab('virksomheder', 'Virksomheder', ['virksomheder', 'virksomhed'])}
+          {tab('personer', 'Personer', ['personer', 'person', 'person-ny', 'person-ret'])}
+          {tab('virksomheder', 'Virksomheder', ['virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret'])}
           {owner && tab('admin', 'Admin', ['admin'])}
           {tab('konto', 'Konto', ['konto'])}
         </nav>
@@ -131,11 +133,15 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
       <main className="wrap">
         {view === 'personer' && <Persons priv={priv} />}
         {view === 'person' && route.id && <Person id={route.id} priv={priv} />}
+        {view === 'person-ny' && <PersonForm key="ny" id={null} priv={priv} />}
+        {view === 'person-ret' && route.id && <PersonForm key={route.id} id={route.id} priv={priv} />}
         {view === 'virksomheder' && <Companies />}
+        {view === 'virksomhed-ny' && <CompanyForm key="ny" id={null} priv={priv} />}
+        {view === 'virksomhed-ret' && route.id && <CompanyForm key={route.id} id={route.id} priv={priv} />}
         {view === 'virksomhed' && route.id && <Company id={route.id} priv={priv} />}
         {view === 'admin' && (owner ? <Admin userId={session.user.id} /> : <p>Kun ejeren har adgang til Admin.</p>)}
         {view === 'konto' && <Account email={session.user.email ?? ''} needsPassword={needsPassword} onPasswordSet={onPasswordSet} />}
-        {!['personer', 'person', 'virksomheder', 'virksomhed', 'admin', 'konto'].includes(view) && <p>Siden findes ikke.</p>}
+        {!['personer', 'person', 'person-ny', 'person-ret', 'virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret', 'admin', 'konto'].includes(view) && <p>Siden findes ikke.</p>}
       </main>
     </>
   );

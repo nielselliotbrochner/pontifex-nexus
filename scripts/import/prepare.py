@@ -27,6 +27,7 @@ ALIASES = {
     },
     'contact': {
         'first_name': ['fornavn', 'first_name', 'first name', 'firstname'],
+        'middle_name': ['mellemnavn', 'middle_name', 'middle name'],
         'last_name': ['efternavn', 'last_name', 'last name', 'lastname'],
         'full_name': ['navn', 'fulde navn', 'name', 'fullname'],
         'email': ['e-mail', 'email', 'mail'],

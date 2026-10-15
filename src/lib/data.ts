@@ -16,7 +16,7 @@ export async function fetchAll(table: string, select = '*', order?: string): Pro
   return out;
 }
 
-export const fullName = (c: Row | null | undefined) => (c ? [c.first_name, c.last_name].filter(Boolean).join(' ') : '');
+export const fullName = (c: Row | null | undefined) => (c ? [c.first_name, c.middle_name, c.last_name].filter(Boolean).join(' ') : '');
 
 export const LOOKUP_TABLES: { name: string; label: string }[] = [
   { name: 'level', label: 'Niveau' },

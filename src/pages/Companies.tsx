@@ -22,7 +22,10 @@ export function Companies() {
   if (error) return <p className="err">{error}</p>;
   return (
     <>
-      <h1>Virksomheder</h1>
+      <div className="inline" style={{ justifyContent: 'space-between' }}>
+        <h1>Virksomheder</h1>
+        <a href={href('virksomhed-ny')} onClick={(e) => onLink(e, 'virksomhed-ny')}><button className="primary">Ny virksomhed</button></a>
+      </div>
       <div className="filters">
         <input placeholder="Søg navn, CVR, by, branche" value={q} onChange={(e) => setQ(e.target.value)} style={{ minWidth: 260 }} />
         <select value={region} onChange={(e) => setRegion(e.target.value)}><option value="">Alle regioner</option>{opts('region').map((o) => <option key={o}>{o}</option>)}</select>

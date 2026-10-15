@@ -68,3 +68,5 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Admin-siden er kun for ejeren (menuen skjules, og databasen afviser alligevel). Her tilføjes værdier til opslagslister, skemaet vises med alle tabeller og relationer, og brugere aktiveres.
 - Bulk-import sker via Claude fra regneark, ikke i frontend (se docs/IMPORT.md). Prøvekørsel først, eksisterende data overskrives aldrig.
 - Privat visning kan slås fra i menuen, fx ved skærmdeling. Den skjuler kendskab, noter og modenhed i brugerfladen.
+- Navne gemmes som fornavn, mellemnavn og efternavn. Visning er fuldt navn. Personlisten kan sorteres på fornavn eller efternavn.
+- Formularer: LinkedIn og CVR må ikke dubleres (blokeres). Samme e-mail eller samme navn giver en advarsel, og man kan oprette alligevel.
