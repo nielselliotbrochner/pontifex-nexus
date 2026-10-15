@@ -133,7 +133,7 @@ export function Network({ priv }: { priv: boolean }) {
       animationDuration: 400,
       tooltip: { formatter: (p: { dataType: string; data: { name: string; label?: string; kind?: string } }) => p.dataType === 'edge' ? (p.data.label ?? '') : `${p.data.name}${p.data.kind === 'person' ? ' (person)' : p.data.kind === 'group' ? ' (koncern)' : ''}` },
       series: [{
-        type: 'graph', layout: 'force', roam: true, draggable: true, data,
+        type: 'graph', layout: 'force', roam: true, zoom: graph.nodes.length > 120 ? 1 : 0.8, draggable: true, data,
         links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, lineStyle: style(l.type) })),
         force: { repulsion: graph.nodes.length > 400 ? 60 : graph.nodes.length > 120 ? 140 : 380, gravity: 0.06, edgeLength: graph.nodes.length > 120 ? [20, 90] : [70, 180], friction: 0.25 },
         labelLayout: { hideOverlap: true },
