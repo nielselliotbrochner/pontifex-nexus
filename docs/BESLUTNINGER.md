@@ -30,7 +30,7 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Data fra 1.x flyttes ikke med. Nexus starter med nye TEST-data (10 virksomheder, 10 personer, alle med TEST foran navnet). Rigtige data indlæses senere efter særskilt beslutning.
 
 ## Virksomheder
-- Branche: todelt træ (fx Entreprenør > Totalentreprenør), flere pr. virksomhed, én primær. Bygherre deles yderligere. Arkitekt, Ingeniør, Advokat som egne grene.
+- Branche: todelt træ (fx Bygherre > Kommune), flere pr. virksomhed, én primær. Bygherre deles yderligere. Arkitekt, Ingeniør, Advokat som egne grene.
 - Sektor er en separat akse: Offentlig, Privat, Almennyttig.
 - Alle lister kan udvides i "Opslagslister".
 - Lokaliteter: tabellen `company_location` (navn, type hovedkontor/kontor/andet, adresse, postnummer, by, land, lat/lng, aktiv). Ét hovedkontor pr. virksomhed.
@@ -81,3 +81,4 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Aktivitetsteksten skjules, når Privat visning er slået fra.
 - Kronologi pr. person og virksomhed vises på deres sider. Virksomhedens kronologi indeholder aktiviteter om virksomheden og møder, hvor en deltager repræsenterede den.
 - Netværk: personer, der har været med i samme aktivitet, forbindes med en rød linje. Linjen bliver tykkere ved flere fælles aktiviteter og viser titler og datoer, når man holder musen over. Aktiviteter med mere end 12 deltagere springes over for at undgå et filttæppe. Kan slås fra med »Fælles aktiviteter«.
+- Branche: Entreprenør er én branche uden underbrancher (Totalentreprenør, Hovedentreprenør og Fagentreprenør er flettet ind, 15. okt 2026). Importfiler bruger Entreprenør.

@@ -54,9 +54,9 @@ declare
   g1 uuid; g2 uuid;
   p1 uuid; p2 uuid; p3 uuid; p4 uuid; p5 uuid; p6 uuid; p7 uuid; p8 uuid; p9 uuid; p10 uuid;
 begin
-  select * into nb from pg_temp.add_company('TEST Nordbyg Totalentreprenør A/S','90000001','private',false,'general_contractor','contractor','8000','Aarhus C','Testvej 1',56.1500,10.2000);
+  select * into nb from pg_temp.add_company('TEST Nordbyg Totalentreprenør A/S','90000001','private',false,'contractor',null,'8000','Aarhus C','Testvej 1',56.1500,10.2000);
   o_cph := pg_temp.add_office(nb.company_id,'København','2100','København Ø','Testgade 2',55.7100,12.5800);
-  select * into na from pg_temp.add_company('TEST Nordbyg Anlæg ApS','90000002','private',false,'trade_contractor',null,'8200','Aarhus N','Testvej 3',56.1900,10.2100);
+  select * into na from pg_temp.add_company('TEST Nordbyg Anlæg ApS','90000002','private',false,'contractor',null,'8200','Aarhus N','Testvej 3',56.1900,10.2100);
   select * into rg from pg_temp.add_company('TEST Region Bygherre','90000003','public',false,'region',null,'2100','København Ø','Testallé 4',55.7000,12.5700);
   select * into km from pg_temp.add_company('TEST Kommune Odense','90000004','public',false,'municipality',null,'5000','Odense C','Testtorvet 5',55.4000,10.3900);
   select * into ab from pg_temp.add_company('TEST Almen Bolig Selskab','90000005','housing',false,'housing_assoc',null,'6000','Kolding','Testboulevard 6',55.4900,9.4700);
