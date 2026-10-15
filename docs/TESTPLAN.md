@@ -13,3 +13,7 @@ Databasetests kører mod to testbrugere (A og B), automatisk i CI.
 9. Kontor på tilknytning tilhører samme virksomhed.
 10. Privat visning maskerer data og slår eksport fra (UI-test).
 11. Typer genereret fra skemaet bygger uden fejl (`tsc`).
+
+## Resultat 15. oktober 2026
+18 af 18 automatiske kontroller bestået mod de to rigtige logins (`supabase/tests/rls_test.sql`). Testen fandt en fejl: almindelige brugere kunne ikke oprette eller redigere personer, fordi `private.normalize_linkedin` manglede EXECUTE-rettighed. Rettet i migration `20261015200000`.
+Ikke testet endnu: sletteregler (skaber eller ejer), at ny bruger får inaktiv adgang ved invitation (set på de to rigtige brugere, men ikke som isoleret test), og UI-test af Privat visning.

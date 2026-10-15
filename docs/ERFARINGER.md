@@ -16,3 +16,5 @@
 - **cvrapi.dk blokerer robotter.** Hent CVR-data manuelt eller via officielt API.
 
 - **Postnumre:** Officielle API'er (DAWA, GeoNames) er blokeret fra Claude-arbejdspladsen. PostNords fil fra 2020 via npm-pakken `dk-postals` bruges. Et postnummer kan ligge i flere kommuner og regioner (22 markeret). Kommune er vejledende.
+- **Generede kolonner kalder funktioner som den ændrende bruger.** Giv `authenticated` EXECUTE på funktioner brugt i generated columns, selv om de ligger i et skjult schema.
+- **Testværktøjet kræver bekræftelse af DELETE og afviser kørslen uden bekræftelse.** Skriv tests uden DELETE, eller kør dem i SQL Editor.
