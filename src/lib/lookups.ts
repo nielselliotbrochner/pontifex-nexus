@@ -1,7 +1,7 @@
 import { fetchAll, type Row } from './data';
 import { useAsync } from './useAsync';
 
-export const LOOKUP_NAMES = ['level', 'job_function', 'acquaintance', 'affiliation_type', 'sector', 'group_role', 'person_link_type', 'branch'] as const;
+export const LOOKUP_NAMES = ['level', 'job_function', 'acquaintance', 'affiliation_type', 'sector', 'group_role', 'person_link_type', 'branch', 'activity_type'] as const;
 export type Lookups = Record<(typeof LOOKUP_NAMES)[number], Row[]>;
 
 // Opslagslister til dropdowns. Kun aktive værdier, sorteret efter rækkefølge.

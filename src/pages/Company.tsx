@@ -1,3 +1,4 @@
+import { Timeline } from './Timeline';
 import { supabase } from '../lib/supabase';
 import { fullName, type Row } from '../lib/data';
 import { onLink, href } from '../lib/nav';
@@ -82,6 +83,7 @@ export function Company({ id, priv }: { id: string; priv: boolean }) {
           </div>
         )}
       </div>
+      <Timeline kind="c" id={id} priv={priv} />
       <h2>Nuværende personer ({cur.length})</h2><PeopleTable list={cur} />
       {past.length > 0 && <><h2>Tidligere personer ({past.length})</h2><PeopleTable list={past} /></>}
     </>

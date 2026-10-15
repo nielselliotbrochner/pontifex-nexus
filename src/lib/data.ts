@@ -27,5 +27,6 @@ export const LOOKUP_TABLES: { name: string; label: string }[] = [
   { name: 'branch', label: 'Branche (træ)' },
   { name: 'group_role', label: 'Rolle i koncern' },
   { name: 'person_link_type', label: 'Persontilknytning (privat)' },
+  { name: 'activity_type', label: 'Aktivitetstype' },
   { name: 'stage', label: 'Modenhed (på hold)' },
 ];

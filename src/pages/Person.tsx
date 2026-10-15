@@ -3,6 +3,7 @@ import { fullName, type Row } from '../lib/data';
 import { onLink, href } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
 import { SkeletonCards } from '../lib/ui';
+import { Timeline } from './Timeline';
 
 export function Person({ id, priv }: { id: string; priv: boolean }) {
   const { data, error, loading } = useAsync(async () => {
@@ -67,6 +68,8 @@ export function Person({ id, priv }: { id: string; priv: boolean }) {
           ))}
         </tbody>
       </table></div>
+
+      <Timeline kind="p" id={id} priv={priv} />
 
       {priv && (
         <>
