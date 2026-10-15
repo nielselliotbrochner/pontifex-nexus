@@ -49,7 +49,13 @@ function Login() {
       email,
       options: { shouldCreateUser: false, emailRedirectTo: window.location.origin + window.location.pathname },
     });
-    setMsg(error ? 'Kunne ikke sende link. Er adressen inviteret?' : 'Hvis adressen er inviteret, er der sendt et login-link.');
+    if (error) {
+      setMsg(error.status === 429
+        ? 'Supabase tillader kun få e-mails i timen på gratisplanen. Prøv igen om en time, eller log ind med adgangskode.'
+        : 'Kunne ikke sende link. Er adressen inviteret?');
+    } else {
+      setMsg('Hvis adressen er inviteret, er der sendt et login-link.');
+    }
   }
 
   return (
@@ -93,9 +99,9 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
     <main style={page}>
       <h1>PONTIFEX Nexus 2.0</h1>
       <p>Logget ind som {session.user.email}.</p>
-      {needsPassword && (
+      {(
         <form onSubmit={setPassword}>
-          <label>Vælg adgangskode (mindst {MIN_PASSWORD} tegn)
+          <label>{needsPassword ? 'Vælg adgangskode' : 'Skift adgangskode'} (mindst {MIN_PASSWORD} tegn)
             <input style={field} type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" />
           </label>
           <button style={btn} type="submit">Gem adgangskode</button>
