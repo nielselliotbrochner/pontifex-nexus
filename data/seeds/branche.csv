@@ -1,0 +1,17 @@
+parent,name
+,Entreprenør
+Entreprenør,Totalentreprenør
+Entreprenør,Hovedentreprenør
+Entreprenør,Fagentreprenør
+,Bygherre
+Bygherre,Stat
+Bygherre,Region
+Bygherre,Kommune
+Bygherre,Almen bolig
+Bygherre,Investor og ejendomsselskab
+Bygherre,Pensionskasse
+Bygherre,Fond
+Bygherre,Privat udvikler
+,Arkitekt
+,Ingeniør
+,Advokat
