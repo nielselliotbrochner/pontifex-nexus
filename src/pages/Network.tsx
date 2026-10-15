@@ -167,10 +167,10 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
       animationDuration: 400,
       tooltip: { formatter: (p: { dataType: string; data: { name: string; label?: string; kind?: string } }) => p.dataType === 'edge' ? (p.data.label ?? '') : `${p.data.name}${p.data.kind === 'person' ? ' (person)' : p.data.kind === 'group' ? ' (koncern)' : ''}` },
       series: [{
-        type: 'graph', layout: 'force', roam: true, zoom: graph.nodes.length > 120 ? 1 : 0.8, draggable: true, data,
+        type: 'graph', layout: 'force', roam: true, zoom: focus || graph.nodes.length > 120 ? 1 : 0.8, draggable: true, data,
         links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, lineStyle: style(l.type) })),
         edgeLabel: { show: !!focus && graph.links.length <= 60, formatter: (p: { data: { label?: string } }) => p.data.label ?? '', fontSize: 10, color: col.line },
-        force: { repulsion: graph.nodes.length > 400 ? 60 : graph.nodes.length > 120 ? 140 : 380, gravity: 0.06, edgeLength: graph.nodes.length > 120 ? [20, 90] : [70, 180], friction: 0.25 },
+        force: { repulsion: graph.nodes.length > 400 ? 60 : graph.nodes.length > 120 ? 140 : focus ? 600 : 380, gravity: 0.06, edgeLength: graph.nodes.length > 120 ? [20, 90] : focus ? [110, 230] : [70, 180], friction: 0.25 },
         labelLayout: { hideOverlap: true },
         emphasis: { focus: 'adjacency', label: { show: true }, lineStyle: { width: 3, opacity: 1 } },
         edgeSymbol: ['none', 'none'],
