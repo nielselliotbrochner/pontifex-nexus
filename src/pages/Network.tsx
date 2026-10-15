@@ -139,6 +139,7 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
   useEffect(() => {
     let dead = false;
     let ro: ResizeObserver | undefined;
+    let tipHandler: [HTMLDivElement, (e: MouseEvent) => void] | undefined;
     (async () => {
       const [{ use, init }, { GraphChart }, { TooltipComponent }, { CanvasRenderer }] = await Promise.all([
         import('echarts/core'), import('echarts/charts'), import('echarts/components'), import('echarts/renderers'),
@@ -157,12 +158,21 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
         if (p.dataType !== 'node' || !d || d.kind === 'group') return;
         go(d.kind === 'person' ? 'person' : 'virksomhed', d.ref);
       });
+      // Links i tooltip: naviger uden at genindlæse siden.
+      const onTip = (e: MouseEvent) => {
+        const a = (e.target as HTMLElement).closest('a[data-v]') as HTMLAnchorElement | null;
+        if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        go(a.dataset.v!, a.dataset.id);
+      };
+      box.current.addEventListener('click', onTip);
+      tipHandler = [box.current, onTip];
       chart.current = c;
       ro = new ResizeObserver(() => c.resize());
       ro.observe(box.current);
       setReady(true);
     })();
-    return () => { dead = true; ro?.disconnect(); chart.current?.dispose(); chart.current = null; };
+    return () => { dead = true; tipHandler?.[0].removeEventListener('click', tipHandler[1]); ro?.disconnect(); chart.current?.dispose(); chart.current = null; };
   }, []);
 
   useEffect(() => {
@@ -194,7 +204,19 @@ export function Network({ priv, focus }: { priv: boolean; focus: string | null }
       : { type: 'dashed', width: 1.6, opacity: 0.9, color: col.company };
     chart.current.setOption({
       animationDuration: 400,
-      tooltip: { formatter: (p: { dataType: string; data: { name: string; label?: string; tip?: string; kind?: string } }) => p.dataType === 'edge' ? esc([p.data.label ?? '', p.data.tip ?? ''].filter(Boolean).join('\n')).replace(/\n/g, '<br/>') : `${p.data.name}${p.data.kind === 'person' ? ' (person)' : p.data.kind === 'group' ? ' (koncern)' : ''}` },
+      tooltip: {
+        enterable: true, hideDelay: 400, confine: true, extraCssText: 'pointer-events:auto;',
+        formatter: (p: { dataType: string; data: { name: string; label?: string; tip?: string; kind?: string; ref?: string } }) => {
+          const d = p.data;
+          if (p.dataType === 'edge') return esc([d.label ?? '', d.tip ?? ''].filter(Boolean).join('\n')).replace(/\n/g, '<br/>');
+          const kindTxt = d.kind === 'person' ? 'Person' : d.kind === 'group' ? 'Koncern' : 'Virksomhed';
+          if (d.kind === 'group' || !d.ref) return `<b>${esc(d.name)}</b><br/>${kindTxt}`;
+          const open = d.kind === 'person' ? 'person' : 'virksomhed';
+          const foc = `${d.kind === 'person' ? 'p' : 'c'}:${d.ref}`;
+          const lnk = (v: string, id: string, t: string) => `<a href="${esc(href(v, id))}" data-v="${v}" data-id="${esc(id)}" style="color:${col.hi};text-decoration:underline">${t}</a>`;
+          return `<b>${esc(d.name)}</b><br/>${kindTxt}<br/>${lnk(open, d.ref, 'Åbn ' + (d.kind === 'person' ? 'personen' : 'virksomheden'))} &nbsp; ${lnk('visualisering', foc, 'Centrér her')}`;
+        },
+      },
       series: [{
         type: 'graph', layout: 'force', roam: true, zoom: focus || graph.nodes.length > 120 ? 1 : 0.8, draggable: true, data,
         links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, tip: l.tip, lineStyle: l.type === 'activity' ? { ...style(l.type), width: 1.5 + Math.min(l.weight ?? 1, 6) } : style(l.type) })),
