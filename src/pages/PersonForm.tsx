@@ -188,6 +188,15 @@ function AffForm({ contactId, row, lk, others, companies, onDone }: { contactId:
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ncKey]);
+  const ncPc = nc?.postal_code ?? '';
+  useEffect(() => {
+    if (!/^\d{4}$/.test(ncPc)) return;
+    let alive = true;
+    supabase.from('postcode').select('city').eq('postal_code', ncPc).maybeSingle().then(({ data }) => {
+      if (alive && data) setNc((x) => (x ? { ...x, city: data.city } : x));
+    });
+    return () => { alive = false; };
+  }, [ncPc]);
   async function createCompany() {
     if (!nc) return;
     setNcErr('');
