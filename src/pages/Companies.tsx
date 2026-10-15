@@ -55,7 +55,7 @@ export function Companies() {
             {loading && <SkeletonRows cols={8} />}
             {shown.map((r) => (
               <tr key={r.company_id}>
-                <td><a href={href('virksomhed', r.company_id)} onClick={(e) => onLink(e, 'virksomhed', r.company_id)}>{r.name}</a>{r.is_own && <span className="tag">egen</span>}{!r.active && <span className="tag">inaktiv</span>}</td>
+                <td><a href={href('virksomhed', r.company_id)} onClick={(e) => onLink(e, 'virksomhed', r.company_id)}>{r.name}</a>{r.is_own && <span className="tag">egen</span>}{r.grp?.code === 'parent' && <span className="tag">KONCERN</span>}{!r.active && <span className="tag">inaktiv</span>}</td>
                 <td>{r.cvr ?? ''}</td><td>{r.sector ?? ''}</td><td>{r.primary_branch}</td>
                 <td>{[r.hq_postal_code, r.hq_city].filter(Boolean).join(' ')}</td><td>{r.region ?? ''}</td><td>{r.grp ? `${r.grp.name}, ${r.grp.size} selskaber` : ''}</td><td>{r.current_contacts}</td>
               </tr>
