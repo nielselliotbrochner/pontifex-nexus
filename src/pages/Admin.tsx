@@ -172,7 +172,7 @@ function Schema() {
         {data.map((t) => (
           <div className="card" key={t.name}>
             <h3>{t.name} <span className="muted">({t.rows} rækker)</span></h3>
-            <div style={{ fontSize: 13 }}>
+            <div style={{ fontSize: 12 }}>
               {t.columns.map((c) => <div key={c.name}><strong>{c.name}</strong>{c.pk && <span className="tag">PK</span>} <span className="muted">{c.type}{c.not_null ? '' : ', valgfri'}</span></div>)}
             </div>
             {t.fks.length > 0 && <p style={{ marginBottom: 0 }}><span className="muted">Peger på:</span> {t.fks.map((f, i) => <span key={i} className="tag">{f.columns.join('+')} → {f.ref_table}</span>)}</p>}
