@@ -65,3 +65,6 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Repoet er offentligt (gratis Pages). Kun kode og publishable key ligger i repoet, aldrig data.
 
 - Postnumre: PostNords værdier bruges uændret (15. okt). Fejl i kommune rettes senere mod officiel kilde.
+- Admin-siden er kun for ejeren (menuen skjules, og databasen afviser alligevel). Her tilføjes værdier til opslagslister, skemaet vises med alle tabeller og relationer, og brugere aktiveres.
+- Bulk-import sker via Claude fra regneark, ikke i frontend (se docs/IMPORT.md). Prøvekørsel først, eksisterende data overskrives aldrig.
+- Privat visning kan slås fra i menuen, fx ved skærmdeling. Den skjuler kendskab, noter og modenhed i brugerfladen.

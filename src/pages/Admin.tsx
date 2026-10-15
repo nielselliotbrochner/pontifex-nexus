@@ -135,6 +135,7 @@ function Schema() {
   const [showCols, setShowCols] = useState(false);
   const [hideOwner, setHideOwner] = useState(true);
   const [svg, setSvg] = useState('');
+  const [zoom, setZoom] = useState(100);
   const [renderErr, setRenderErr] = useState('');
   const seq = useRef(0);
 
@@ -160,10 +161,11 @@ function Schema() {
       <div className="filters">
         <label><input type="checkbox" checked={showCols} onChange={(e) => setShowCols(e.target.checked)} /> Vis kolonner i diagram</label>
         <label><input type="checkbox" checked={hideOwner} onChange={(e) => setHideOwner(e.target.checked)} /> Skjul relationer til brugertabel (created_by, owner_id)</label>
+        <label>Zoom <select value={zoom} onChange={(e) => setZoom(Number(e.target.value))}>{[60, 100, 150, 200, 300].map((z) => <option key={z} value={z}>{z === 100 ? 'Tilpas bredde' : `${z} %`}</option>)}</select></label>
         <span className="muted">{data.length} tabeller</span>
       </div>
       {renderErr && <p className="err">Diagram kunne ikke tegnes: {renderErr}</p>}
-      <div className="diagram" dangerouslySetInnerHTML={{ __html: svg }} />
+      <div className="diagram"><div className="diagram-inner" style={{ width: `${zoom}%` }} dangerouslySetInnerHTML={{ __html: svg }} /></div>
       <h2>Alle tabeller</h2>
       <div className="grid">
         {data.map((t) => (

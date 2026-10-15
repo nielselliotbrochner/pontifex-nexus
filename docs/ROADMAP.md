@@ -4,7 +4,7 @@
 |---|---|---|
 | 0 Fundament | Supabase-projekt, repo, docs, CI, migrationsmappe | Færdig |
 | 1 Kontaktdatabase | Skema, RLS, audit, seeds, TEST-data, tests med to brugere | Færdig: skema, RLS, audit, TEST-data, postnumre (PostNord, uændret) og tests 18/18. Login for begge ejere bekræftet 15. okt |
-| 2 Brugerflade | Login, lister og filtre, detaljesider, dubletadvarsel, Opslagslister, Admin og Privat visning, CSV-import | |
+| 2 Brugerflade | Login, lister og filtre, detaljesider, dubletadvarsel, Opslagslister, Admin og Privat visning, bulk-import | Færdig: login, lister med filtre, detaljesider, Privat visning, Admin (opslagslister, tabeller og relationer, brugere), bulk-import via Claude. Mangler: oprettelses- og redigeringsformularer med dubletadvarsel |
 | 3 Aktiviteter | Aktiviteter, opfølgninger, intel | |
 | 4 Leads | Rammeaftaler, projekter, opportunities | |
 | 5 Branche-rating | Rating af entreprenører, arkitekter m.fl. | |

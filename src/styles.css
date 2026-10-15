@@ -26,7 +26,7 @@ th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(-
 .card.private { border-style:dashed; border-color:var(--accent); }
 dl.kv { display:grid; grid-template-columns:130px 1fr; gap:4px 10px; margin:0; } dl.kv dt { color:var(--muted); } dl.kv dd { margin:0; }
 .tabs { display:flex; gap:6px; margin-bottom:14px; } .tabs button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
-.diagram { overflow:auto; border:1px solid var(--line); border-radius:8px; padding:8px; background:#fff; } .diagram svg { max-width:none; }
+.diagram { overflow:auto; border:1px solid var(--line); border-radius:8px; padding:8px; background:#fff; } .diagram { max-height:78vh; } .diagram-inner svg { width:100% !important; height:auto !important; max-width:none !important; }
 .err { color:#c0392b; } .ok { color:#1a7f4b; }
 .count { color:var(--muted); font-size:13px; margin:6px 0; }
 @media (max-width:700px){ dl.kv{grid-template-columns:1fr;} }
