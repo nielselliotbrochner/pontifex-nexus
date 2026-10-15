@@ -20,14 +20,13 @@ declare
   res text[] := '{}';
   n int; x uuid; cid uuid; coid uuid; coid2 uuid; locid uuid; gid uuid;
 begin
-  -- Første bruger bliver ejer, de næste er inaktive
+  -- Nye brugere får ingen adgang, før ejeren aktiverer dem
   insert into auth.users (id, email, aud, role) values (a, 'a@test.example', 'authenticated', 'authenticated');
   insert into auth.users (id, email, aud, role) values (b, 'b@test.example', 'authenticated', 'authenticated');
   insert into auth.users (id, email, aud, role) values (c, 'c@test.example', 'authenticated', 'authenticated');
-  select count(*) into n from public.app_user where user_id = a and role = 'owner' and active;
-  res := res || (case when n = 1 then 'PASS' else 'FAIL' end || ' 1 første bruger er aktiv ejer');
-  select count(*) into n from public.app_user where user_id in (b, c) and role = 'member' and not active;
-  res := res || (case when n = 2 then 'PASS' else 'FAIL' end || ' 2 senere brugere er inaktive medlemmer');
+  select count(*) into n from public.app_user where user_id in (a, b, c) and role = 'member' and not active;
+  res := res || (case when n = 3 then 'PASS' else 'FAIL ('||n||')' end || ' 1 nye brugere er inaktive medlemmer uden adgang');
+  update public.app_user set role = 'owner', active = true where user_id = a;
   update public.app_user set active = true where user_id = b;
 
   select id into cid from public.contact where first_name = 'TEST Anna';
