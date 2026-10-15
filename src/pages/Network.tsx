@@ -135,7 +135,8 @@ export function Network({ priv }: { priv: boolean }) {
       series: [{
         type: 'graph', layout: 'force', roam: true, draggable: true, data,
         links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, lineStyle: style(l.type) })),
-        force: { repulsion: 140, gravity: 0.08, edgeLength: [30, 110], friction: 0.2 },
+        force: { repulsion: graph.nodes.length > 400 ? 60 : graph.nodes.length > 120 ? 140 : 380, gravity: 0.06, edgeLength: graph.nodes.length > 120 ? [20, 90] : [70, 180], friction: 0.25 },
+        labelLayout: { hideOverlap: true },
         emphasis: { focus: 'adjacency', label: { show: true }, lineStyle: { width: 3, opacity: 1 } },
         edgeSymbol: ['none', 'none'],
       }],
