@@ -6,7 +6,7 @@ import { useAsync } from '../lib/useAsync';
 import { useLookups, lookupByCode, type Lookups } from '../lib/lookups';
 import { personDupes, companyDupes, type Dupe } from '../lib/dupes';
 import { pokeGeo } from '../lib/geoWorker';
-import { Field, Picker, Select, nz, setFlash, takeFlash, today, useDebounced } from '../lib/form';
+import { BranchSelect, Field, Picker, Select, nz, setFlash, takeFlash, today, useDebounced } from '../lib/form';
 import { SkeletonCards } from '../lib/ui';
 
 const blank = { first_name: '', middle_name: '', last_name: '', email: '', phone: '', linkedin_url: '', active: true };
@@ -176,7 +176,7 @@ function AffForm({ contactId, row, lk, others, companies, onDone }: { contactId:
   });
   const [err, setErr] = useState('');
   const [extra, setExtra] = useState<{ id: string; label: string }[]>([]);
-  const [nc, setNc] = useState<{ name: string; cvr: string; postal_code: string; city: string } | null>(null);
+  const [nc, setNc] = useState<{ name: string; cvr: string; postal_code: string; city: string; sector_id: string; branch_id: string } | null>(null);
   const [ncDupes, setNcDupes] = useState<Dupe[]>([]);
   const [ncForce, setNcForce] = useState(false);
   const [ncErr, setNcErr] = useState('');
@@ -202,11 +202,14 @@ function AffForm({ contactId, row, lk, others, companies, onDone }: { contactId:
     setNcErr('');
     if (!nc.name.trim()) return setNcErr('Navn mangler.');
     if (nc.cvr.trim() && !/^\d{8}$/.test(nc.cvr.trim())) return setNcErr('CVR skal være 8 cifre.');
+    if (!nc.sector_id) return setNcErr('Vælg en sektor.');
+    if (!nc.branch_id) return setNcErr('Vælg en primær branche.');
     if (nc.postal_code && !/^\d{4}$/.test(nc.postal_code)) return setNcErr('Postnummer skal være 4 cifre.');
     if (ncDupes.some((d) => d.kind === 'cvr')) return setNcErr('CVR-nummeret findes allerede. Vælg virksomheden på listen i stedet.');
     if (ncDupes.some((d) => d.kind === 'name') && !ncForce) return setNcErr('Navnet findes allerede. Vælg den på listen, eller marker »Opret alligevel«.');
-    const { data, error } = await supabase.from('company').insert({ name: nc.name.trim(), cvr: nz(nc.cvr) }).select('id').single();
+    const { data, error } = await supabase.from('company').insert({ name: nc.name.trim(), cvr: nz(nc.cvr), sector_id: nc.sector_id }).select('id').single();
     if (error) return setNcErr(error.message.includes('company_cvr_uq') ? 'CVR-nummeret findes allerede.' : error.message);
+    await supabase.from('company_branch').insert({ company_id: data.id, branch_id: nc.branch_id, is_primary: true });
     if (nc.postal_code || nc.city.trim()) {
       await supabase.from('company_location').insert({ company_id: data.id, is_hq: true, postal_code: nz(nc.postal_code), city: nz(nc.city) });
       pokeGeo();
@@ -245,7 +248,7 @@ function AffForm({ contactId, row, lk, others, companies, onDone }: { contactId:
       <div className="form">
         <Field label="Virksomhed *">
           <Picker items={[...companies, ...extra]} value={a.company_id} onChange={(v) => { set('company_id', v); set('location_id', ''); }} placeholder="Søg virksomhed" />
-          {!nc && <button type="button" className="small" style={{ marginTop: 4, alignSelf: 'flex-start' }} onClick={() => setNc({ name: '', cvr: '', postal_code: '', city: '' })}>+ Opret ny virksomhed</button>}
+          {!nc && <button type="button" className="small" style={{ marginTop: 4, alignSelf: 'flex-start' }} onClick={() => setNc({ name: '', cvr: '', postal_code: '', city: '', sector_id: '', branch_id: '' })}>+ Opret ny virksomhed</button>}
         </Field>
         {nc && (
           <div className="card private wide" style={{ gridColumn: '1 / -1' }}>
@@ -253,6 +256,8 @@ function AffForm({ contactId, row, lk, others, companies, onDone }: { contactId:
             <div className="form">
               <Field label="Navn *"><input autoFocus value={nc.name} onChange={(e) => setNc({ ...nc, name: e.target.value })} /></Field>
               <Field label="CVR"><input inputMode="numeric" maxLength={8} value={nc.cvr} onChange={(e) => setNc({ ...nc, cvr: e.target.value.replace(/\D/g, '') })} /></Field>
+              <Field label="Sektor *"><Select value={nc.sector_id} onChange={(v) => setNc({ ...nc, sector_id: v })} items={lk.sector} empty="Vælg sektor..." /></Field>
+              <Field label="Primær branche *"><BranchSelect branches={lk.branch} value={nc.branch_id} onChange={(v) => setNc({ ...nc, branch_id: v })} /></Field>
               <Field label="Postnr. (hovedkontor)"><input inputMode="numeric" maxLength={4} value={nc.postal_code} onChange={(e) => setNc({ ...nc, postal_code: e.target.value.replace(/\D/g, '') })} /></Field>
               <Field label="By"><input value={nc.city} onChange={(e) => setNc({ ...nc, city: e.target.value })} /></Field>
             </div>

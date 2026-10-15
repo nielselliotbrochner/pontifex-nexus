@@ -6,7 +6,7 @@ import { go, href, onLink } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
 import { useLookups } from '../lib/lookups';
 import { companyDupes, type Dupe } from '../lib/dupes';
-import { Field, Select, nz, setFlash, takeFlash, useDebounced } from '../lib/form';
+import { BranchSelect, Field, Select, nz, setFlash, takeFlash, useDebounced } from '../lib/form';
 import { SkeletonCards } from '../lib/ui';
 
 const blank = { name: '', cvr: '', website: '', sector_id: '', is_own: false, active: true };
@@ -20,6 +20,7 @@ export function CompanyForm({ id, priv }: { id: string | null; priv: boolean }) 
   const [msg, setMsg] = useState(() => takeFlash());
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [branchId, setBranchId] = useState('');
   const set = (k: keyof typeof blank, v: string | boolean) => { setErr(''); setF((x) => ({ ...x, [k]: v })); };
 
   useEffect(() => {
@@ -44,6 +45,8 @@ export function CompanyForm({ id, priv }: { id: string | null; priv: boolean }) 
     e.preventDefault(); setErr(''); setMsg('');
     if (!f.name.trim()) return setErr('Navn mangler.');
     if (f.cvr.trim() && !/^\d{8}$/.test(f.cvr.trim())) return setErr('CVR skal være 8 cifre.');
+    if (!id && !f.sector_id) return setErr('Vælg en sektor.');
+    if (!id && !branchId) return setErr('Vælg en primær branche.');
     if (hard.length) return setErr('CVR-nummeret findes allerede på en anden virksomhed. Åbn den i stedet.');
     if (!id && soft.length && !force) return setErr('Navnet findes allerede. Marker »Opret alligevel«, hvis det er en anden virksomhed.');
     setBusy(true);
@@ -57,7 +60,8 @@ export function CompanyForm({ id, priv }: { id: string | null; priv: boolean }) 
       const { data, error } = await supabase.from('company').insert(rec).select('id').single();
       setBusy(false);
       if (error) return setErr(error.message.includes('company_cvr_uq') ? 'CVR-nummeret findes allerede på en anden virksomhed.' : error.message);
-      setFlash('Virksomheden er oprettet. Tilføj brancher og lokationer nedenfor.');
+      const br = await supabase.from('company_branch').insert({ company_id: data.id, branch_id: branchId, is_primary: true });
+      setFlash(br.error ? `Virksomheden er oprettet, men branchen kunne ikke gemmes: ${br.error.message}` : 'Virksomheden er oprettet. Tilføj flere brancher og lokationer nedenfor.');
       go('virksomhed-ret', data.id);
     }
   }
@@ -80,7 +84,8 @@ export function CompanyForm({ id, priv }: { id: string | null; priv: boolean }) 
           <Field label="Navn *"><input value={f.name} onChange={(e) => set('name', e.target.value)} autoFocus={!id} /></Field>
           <Field label="CVR" hint="8 cifre"><input value={f.cvr} inputMode="numeric" maxLength={8} onChange={(e) => set('cvr', e.target.value.replace(/\D/g, ''))} /></Field>
           <Field label="Hjemmeside"><input value={f.website} onChange={(e) => set('website', e.target.value)} placeholder="https://" /></Field>
-          <Field label="Sektor"><Select value={f.sector_id} onChange={(v) => set('sector_id', v)} items={lk.data?.sector ?? []} empty="Ikke angivet" /></Field>
+          <Field label={id ? 'Sektor' : 'Sektor *'}><Select value={f.sector_id} onChange={(v) => set('sector_id', v)} items={lk.data?.sector ?? []} empty={id ? 'Ikke angivet' : 'Vælg sektor...'} /></Field>
+          {!id && <Field label="Primær branche *" hint="Flere brancher kan tilføjes bagefter"><BranchSelect branches={lk.data?.branch ?? []} value={branchId} onChange={setBranchId} /></Field>}
           <Field label="Egen virksomhed"><label><input type="checkbox" checked={f.is_own} onChange={(e) => set('is_own', e.target.checked)} /> Kolleger er personer her</label></Field>
           {id && <Field label="Status"><label><input type="checkbox" checked={f.active} onChange={(e) => set('active', e.target.checked)} /> Aktiv</label></Field>}
         </div>
@@ -122,7 +127,6 @@ function Branches({ companyId }: { companyId: string }) {
   const [pick, setPick] = useState('');
   const [msg, setMsg] = useState('');
   const branches = lk.data?.branch ?? [];
-  const roots = branches.filter((b) => !b.parent_id);
   const used = new Set((rows ?? []).map((r) => r.branch_id));
   const label = (b: Row) => (b.branch.parent ? `${b.branch.parent.name} / ${b.branch.name}` : b.branch.name);
 
@@ -155,15 +159,7 @@ function Branches({ companyId }: { companyId: string }) {
         ))}
       </div>
       <div className="inline" style={{ marginTop: 10 }}>
-        <select value={pick} onChange={(e) => setPick(e.target.value)}>
-          <option value="">Tilføj branche...</option>
-          {roots.map((r) => (
-            <optgroup key={r.id} label={r.name}>
-              {!used.has(r.id) && <option value={r.id}>{r.name} (generelt)</option>}
-              {branches.filter((b) => b.parent_id === r.id && !used.has(b.id)).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </optgroup>
-          ))}
-        </select>
+        <BranchSelect branches={branches} value={pick} onChange={setPick} exclude={used} empty="Tilføj branche..." />
         <button onClick={add} disabled={!pick}>Tilføj</button>
       </div>
       {msg && <p role="alert" className="err">{msg}</p>}

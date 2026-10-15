@@ -25,6 +25,28 @@ export function Select({ value, onChange, items, empty = '', disabled }: { value
   );
 }
 
+// Branchevælger: grupperet efter hovedbranche. Hovedbrancher uden underbrancher vælges direkte.
+export function BranchSelect({ branches, value, onChange, exclude, empty = 'Vælg branche...' }: { branches: Row[]; value: string; onChange: (v: string) => void; exclude?: Set<string>; empty?: string }) {
+  const roots = branches.filter((b) => !b.parent_id);
+  const kids = (r: Row) => branches.filter((b) => b.parent_id === r.id && !exclude?.has(b.id));
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">{empty}</option>
+      {roots.map((r) => {
+        const ks = kids(r);
+        const hasKids = branches.some((b) => b.parent_id === r.id);
+        if (!hasKids) return exclude?.has(r.id) ? null : <option key={r.id} value={r.id}>{r.name}</option>;
+        return (
+          <optgroup key={r.id} label={r.name}>
+            {!exclude?.has(r.id) && <option value={r.id}>{r.name} (generelt)</option>}
+            {ks.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+          </optgroup>
+        );
+      })}
+    </select>
+  );
+}
+
 // Søgbar vælger: skriv, og de matchende poster vises løbende i en liste. Pil op/ned og Enter virker.
 export function Picker({ items, value, onChange, placeholder = 'Søg...' }: { items: { id: string; label: string }[]; value: string; onChange: (id: string) => void; placeholder?: string }) {
   const [q, setQ] = useState('');
