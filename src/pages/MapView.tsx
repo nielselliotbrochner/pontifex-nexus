@@ -102,7 +102,7 @@ export function MapView() {
     const key = JSON.stringify([o.region, o.sector, o.hqOnly, o.search, model.points.length]);
     if (model.points.length && fitted.current !== key) {
       fitted.current = key;
-      map.fitBounds(group.getBounds().pad(0.2), { maxZoom: 12 });
+      map.fitBounds(group.getBounds().pad(0.45), { maxZoom: 10 });
     }
   }, [model, ready, o]);
 
