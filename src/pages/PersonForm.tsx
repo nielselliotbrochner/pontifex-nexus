@@ -18,7 +18,7 @@ export function PersonForm({ id, priv }: { id: string | null; priv: boolean }) {
   const [msg, setMsg] = useState(() => takeFlash());
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
-  const set = (k: keyof typeof blank, v: string | boolean) => setF((x) => ({ ...x, [k]: v }));
+  const set = (k: keyof typeof blank, v: string | boolean) => { setErr(''); setF((x) => ({ ...x, [k]: v })); };
 
   useEffect(() => {
     if (!id) return;
