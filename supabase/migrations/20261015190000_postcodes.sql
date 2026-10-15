@@ -2,8 +2,7 @@
 -- Kilde: PostNords postnummerfil fra oktober 2020 via npm-pakken dk-postals (ISC). Rå fil: data/seeds/postnord_postnumre_2020_raa.csv.
 -- Region er pålidelig. Kommune er vejledende, fordi et postnummer kan ligge i flere kommuner.
 -- region_ambiguous markerer 22 postnumre, der ligger i flere regioner.
--- 43 rækker er rettet manuelt efter kildefilen (7 regioner, 36 kommuner). Rettelserne er ikke kontrolleret mod officiel kilde.
--- Forskellen mod kilden ses ved at sammenligne data/seeds/postnumre.csv med data/seeds/postnumre_kilde_postnord.csv.
+-- OBS: denne fil indeholder 43 manuelle rettelser. Migration 20261015210000 gendanner PostNords oprindelige værdier, så den samlede database svarer til kildefilen.
 alter table public.postcode add column if not exists region_ambiguous boolean not null default false;
 
 insert into public.postcode (postal_code, city, municipality, region, region_ambiguous)

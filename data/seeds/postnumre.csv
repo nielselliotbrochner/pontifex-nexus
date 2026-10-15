@@ -537,7 +537,7 @@ postal_code,city,municipality,region,region_ambiguous
 2765,"Smørum",Egedal,Region Hovedstaden,false
 2770,"Kastrup",København,Region Hovedstaden,false
 2791,"Dragør",Dragør,Region Hovedstaden,false
-2800,"Kongens Lyngby",Lyngby-Taarbæk,Region Hovedstaden,false
+2800,"Kongens Lyngby",Gentofte,Region Hovedstaden,false
 2820,"Gentofte",Gentofte,Region Hovedstaden,false
 2830,"Virum",Lyngby-Taarbæk,Region Hovedstaden,false
 2840,"Holte",Lyngby-Taarbæk,Region Hovedstaden,false
@@ -563,13 +563,13 @@ postal_code,city,municipality,region,region_ambiguous
 3120,"Dronningmølle",Gribskov,Region Hovedstaden,false
 3140,"Ålsgårde",Helsingør,Region Hovedstaden,false
 3150,"Hellebæk",Helsingør,Region Hovedstaden,false
-3200,"Helsinge",Gribskov,Region Hovedstaden,false
+3200,"Helsinge",Hillerød,Region Hovedstaden,false
 3210,"Vejby",Gribskov,Region Hovedstaden,false
 3220,"Tisvildeleje",Gribskov,Region Hovedstaden,false
-3230,"Græsted",Gribskov,Region Hovedstaden,false
+3230,"Græsted",Helsingør,Region Hovedstaden,false
 3250,"Gilleleje",Gribskov,Region Hovedstaden,false
 3300,"Frederiksværk",Halsnæs,Region Hovedstaden,false
-3310,"Ølsted",Frederiksværk,Region Hovedstaden,false
+3310,"Ølsted",Hillerød,Region Hovedstaden,false
 3320,"Skævinge",Hillerød,Region Hovedstaden,false
 3330,"Gørløse",Hillerød,Region Hovedstaden,false
 3360,"Liseleje",Halsnæs,Region Hovedstaden,false
@@ -577,13 +577,13 @@ postal_code,city,municipality,region,region_ambiguous
 3390,"Hundested",Halsnæs,Region Hovedstaden,false
 3400,"Hillerød",Hillerød,Region Hovedstaden,false
 3450,"Allerød",Allerød,Region Hovedstaden,false
-3460,"Birkerød",Rudersdal,Region Hovedstaden,false
+3460,"Birkerød",Furesø,Region Hovedstaden,false
 3480,"Fredensborg",Fredensborg,Region Hovedstaden,false
 3490,"Kvistgård",Fredensborg,Region Hovedstaden,false
-3500,"Værløse",Furesø,Region Hovedstaden,false
+3500,"Værløse",Ballerup,Region Hovedstaden,false
 3520,"Farum",Furesø,Region Hovedstaden,false
-3540,"Lynge",Allerød,Region Hovedstaden,false
-3550,"Slangerup",Frederikssund,Region Hovedstaden,false
+3540,"Lynge",Furesø,Region Hovedstaden,false
+3550,"Slangerup",Allerød,Region Hovedstaden,false
 3600,"Frederikssund",Frederikssund,Region Hovedstaden,false
 3630,"Jægerspris",Frederikssund,Region Hovedstaden,false
 3650,"Ølstykke",Egedal,Region Hovedstaden,false
@@ -864,7 +864,7 @@ postal_code,city,municipality,region,region_ambiguous
 6800,"Varde",Varde,Region Syddanmark,false
 6818,"Årre",Esbjerg,Region Syddanmark,false
 6823,"Ansager",Billund,Region Syddanmark,false
-6830,"Nørre Nebel",Varde,Region Syddanmark,true
+6830,"Nørre Nebel",Ringkøbing-Skjern,Region Midtjylland,true
 6840,"Oksbøl",Varde,Region Syddanmark,false
 6851,"Janderup Vestj",Varde,Region Syddanmark,false
 6852,"Billum",Varde,Region Syddanmark,false
@@ -873,7 +873,7 @@ postal_code,city,municipality,region,region_ambiguous
 6855,"Outrup",Varde,Region Syddanmark,false
 6857,"Blåvand",Varde,Region Syddanmark,false
 6862,"Tistrup",Varde,Region Syddanmark,false
-6870,"Ølgod",Varde,Region Syddanmark,true
+6870,"Ølgod",Ringkøbing-Skjern,Region Midtjylland,true
 6880,"Tarm",Ringkøbing-Skjern,Region Midtjylland,true
 6893,"Hemmet",Ringkøbing-Skjern,Region Midtjylland,false
 6900,"Skjern",Ringkøbing-Skjern,Region Midtjylland,false
@@ -903,12 +903,12 @@ postal_code,city,municipality,region,region_ambiguous
 7190,"Billund",Billund,Region Syddanmark,false
 7200,"Grindsted",Billund,Region Syddanmark,false
 7250,"Hejnsvig",Billund,Region Syddanmark,false
-7260,"Sønder Omme",Billund,Region Syddanmark,true
-7270,"Stakroge",Billund,Region Syddanmark,true
+7260,"Sønder Omme",Herning,Region Midtjylland,true
+7270,"Stakroge",Herning,Region Midtjylland,true
 7280,"Sønder Felding",Herning,Region Midtjylland,false
 7300,"Jelling",Vejle,Region Syddanmark,false
 7321,"Gadbjerg",Vejle,Region Syddanmark,false
-7323,"Give",Vejle,Region Syddanmark,true
+7323,"Give",Ikast-Brande,Region Midtjylland,true
 7330,"Brande",Ikast-Brande,Region Midtjylland,true
 7361,"Ejstrupholm",Ikast-Brande,Region Midtjylland,true
 7362,"Hampen",Silkeborg,Region Midtjylland,false
@@ -941,7 +941,7 @@ postal_code,city,municipality,region,region_ambiguous
 7770,"Vestervig",Thisted,Region Nordjylland,false
 7790,"Thyholm",Struer,Region Midtjylland,false
 7800,"Skive",Skive,Region Midtjylland,false
-7830,"Vinderup",Holstebro,Region Midtjylland,false
+7830,"Vinderup",Herning,Region Midtjylland,false
 7840,"Højslev",Skive,Region Midtjylland,false
 7850,"Stoholm Jyll",Viborg,Region Midtjylland,false
 7860,"Spøttrup",Skive,Region Midtjylland,false
@@ -974,7 +974,7 @@ postal_code,city,municipality,region,region_ambiguous
 8361,"Hasselager",Aarhus,Region Midtjylland,false
 8362,"Hørning",Skanderborg,Region Midtjylland,false
 8370,"Hadsten",Favrskov,Region Midtjylland,false
-8380,"Trige",Aarhus,Region Midtjylland,false
+8380,"Trige",Favrskov,Region Midtjylland,false
 8381,"Tilst",Aarhus,Region Midtjylland,false
 8382,"Hinnerup",Favrskov,Region Midtjylland,false
 8400,"Ebeltoft",Syddjurs,Region Midtjylland,false
@@ -984,7 +984,7 @@ postal_code,city,municipality,region,region_ambiguous
 8450,"Hammel",Favrskov,Region Midtjylland,false
 8462,"Harlev J",Aarhus,Region Midtjylland,false
 8464,"Galten",Skanderborg,Region Midtjylland,false
-8471,"Sabro",Aarhus,Region Midtjylland,false
+8471,"Sabro",Favrskov,Region Midtjylland,false
 8472,"Sporup",Favrskov,Region Midtjylland,false
 8500,"Grenaa",Norddjurs,Region Midtjylland,false
 8520,"Lystrup",Aarhus,Region Midtjylland,false
@@ -1002,13 +1002,13 @@ postal_code,city,municipality,region,region_ambiguous
 8600,"Silkeborg",Silkeborg,Region Midtjylland,false
 8620,"Kjellerup",Silkeborg,Region Midtjylland,false
 8632,"Lemming",Silkeborg,Region Midtjylland,false
-8641,"Sorring",Silkeborg,Region Midtjylland,false
+8641,"Sorring",Favrskov,Region Midtjylland,false
 8643,"Ans By",Silkeborg,Region Midtjylland,false
 8653,"Them",Silkeborg,Region Midtjylland,false
-8654,"Bryrup",Silkeborg,Region Midtjylland,false
+8654,"Bryrup",Horsens,Region Midtjylland,false
 8660,"Skanderborg",Skanderborg,Region Midtjylland,false
 8670,"Låsby",Skanderborg,Region Midtjylland,false
-8680,"Ry",Skanderborg,Region Midtjylland,false
+8680,"Ry",Horsens,Region Midtjylland,false
 8700,"Horsens",Horsens,Region Midtjylland,false
 8721,"Daugård",Hedensted,Region Midtjylland,false
 8722,"Hedensted",Hedensted,Region Midtjylland,false
@@ -1029,12 +1029,12 @@ postal_code,city,municipality,region,region_ambiguous
 8830,"Tjele",Viborg,Region Midtjylland,false
 8831,"Løgstrup",Viborg,Region Midtjylland,false
 8832,"Skals",Viborg,Region Midtjylland,false
-8840,"Rødkærsbro",Viborg,Region Midtjylland,false
-8850,"Bjerringbro",Viborg,Region Midtjylland,false
+8840,"Rødkærsbro",Silkeborg,Region Midtjylland,false
+8850,"Bjerringbro",Favrskov,Region Midtjylland,false
 8860,"Ulstrup",Favrskov,Region Midtjylland,false
-8870,"Langå",Randers,Region Midtjylland,false
+8870,"Langå",Favrskov,Region Midtjylland,false
 8881,"Thorsø",Favrskov,Region Midtjylland,false
-8882,"Fårvang",Silkeborg,Region Midtjylland,false
+8882,"Fårvang",Favrskov,Region Midtjylland,false
 8883,"Gjern",Silkeborg,Region Midtjylland,false
 8900,"Randers C",Randers,Region Midtjylland,false
 8920,"Randers NV",Randers,Region Midtjylland,false
@@ -1043,18 +1043,18 @@ postal_code,city,municipality,region,region_ambiguous
 8950,"Ørsted",Norddjurs,Region Midtjylland,false
 8960,"Randers SØ",Randers,Region Midtjylland,false
 8961,"Allingåbro",Norddjurs,Region Midtjylland,false
-8963,"Auning",Norddjurs,Region Midtjylland,false
-8970,"Havndal",Randers,Region Midtjylland,true
+8963,"Auning",Syddjurs,Region Midtjylland,false
+8970,"Havndal",Mariagerfjord,Region Nordjylland,true
 8981,"Spentrup",Randers,Region Midtjylland,false
 8983,"Gjerlev J",Randers,Region Midtjylland,false
-8990,"Fårup",Randers,Region Midtjylland,true
+8990,"Fårup",Mariagerfjord,Region Nordjylland,true
 9000,"Aalborg",Aalborg,Region Nordjylland,false
 9200,"Aalborg SV",Aalborg,Region Nordjylland,false
 9210,"Aalborg SØ",Aalborg,Region Nordjylland,false
 9220,"Aalborg Øst",Aalborg,Region Nordjylland,false
-9230,"Svenstrup J",Aalborg,Region Nordjylland,false
-9240,"Nibe",Aalborg,Region Nordjylland,false
-9260,"Gistrup",Aalborg,Region Nordjylland,false
+9230,"Svenstrup J",Rebild,Region Nordjylland,false
+9240,"Nibe",Vesthimmerlands,Region Nordjylland,false
+9260,"Gistrup",Rebild,Region Nordjylland,false
 9270,"Klarup",Aalborg,Region Nordjylland,false
 9280,"Storvorde",Aalborg,Region Nordjylland,false
 9293,"Kongerslev",Rebild,Region Nordjylland,false
@@ -1065,45 +1065,45 @@ postal_code,city,municipality,region,region_ambiguous
 9340,"Asaa",Brønderslev,Region Nordjylland,false
 9352,"Dybvad",Brønderslev,Region Nordjylland,false
 9362,"Gandrup",Aalborg,Region Nordjylland,false
-9370,"Hals",Aalborg,Region Nordjylland,false
+9370,"Hals",Brønderslev,Region Nordjylland,false
 9380,"Vestbjerg",Aalborg,Region Nordjylland,false
-9381,"Sulsted",Aalborg,Region Nordjylland,false
+9381,"Sulsted",Jammerbugt,Region Nordjylland,false
 9382,"Tylstrup",Brønderslev,Region Nordjylland,false
 9400,"Nørresundby",Aalborg,Region Nordjylland,false
 9430,"Vadum",Jammerbugt,Region Nordjylland,false
-9440,"Aabybro",Jammerbugt,Region Nordjylland,false
+9440,"Aabybro",Brønderslev,Region Nordjylland,false
 9460,"Brovst",Jammerbugt,Region Nordjylland,false
-9480,"Løkken",Hjørring,Region Nordjylland,false
+9480,"Løkken",Brønderslev,Region Nordjylland,false
 9490,"Pandrup",Jammerbugt,Region Nordjylland,false
 9492,"Blokhus",Jammerbugt,Region Nordjylland,false
 9493,"Saltum",Jammerbugt,Region Nordjylland,false
-9500,"Hobro",Mariagerfjord,Region Nordjylland,true
+9500,"Hobro",Rebild,Region Nordjylland,true
 9510,"Arden",Rebild,Region Nordjylland,false
 9520,"Skørping",Rebild,Region Nordjylland,false
 9530,"Støvring",Rebild,Region Nordjylland,false
-9541,"Suldrup",Rebild,Region Nordjylland,false
+9541,"Suldrup",Vesthimmerlands,Region Nordjylland,false
 9550,"Mariager",Mariagerfjord,Region Nordjylland,true
-9560,"Hadsund",Mariagerfjord,Region Nordjylland,false
+9560,"Hadsund",Rebild,Region Nordjylland,false
 9574,"Bælum",Rebild,Region Nordjylland,false
 9575,"Terndrup",Rebild,Region Nordjylland,false
 9600,"Aars",Vesthimmerlands,Region Nordjylland,false
-9610,"Nørager",Rebild,Region Nordjylland,false
+9610,"Nørager",Vesthimmerlands,Region Nordjylland,false
 9620,"Aalestrup",Vesthimmerlands,Region Nordjylland,true
 9631,"Gedsted",Vesthimmerlands,Region Nordjylland,true
-9632,"Møldrup",Vesthimmerlands,Region Nordjylland,true
+9632,"Møldrup",Mariagerfjord,Region Nordjylland,true
 9640,"Farsø",Vesthimmerlands,Region Nordjylland,false
 9670,"Løgstør",Vesthimmerlands,Region Nordjylland,false
 9681,"Ranum",Vesthimmerlands,Region Nordjylland,false
 9690,"Fjerritslev",Jammerbugt,Region Nordjylland,false
 9700,"Brønderslev",Brønderslev,Region Nordjylland,false
 9740,"Jerslev J",Brønderslev,Region Nordjylland,false
-9750,"Østervrå",Frederikshavn,Region Nordjylland,false
-9760,"Vrå",Hjørring,Region Nordjylland,false
+9750,"Østervrå",Brønderslev,Region Nordjylland,false
+9760,"Vrå",Brønderslev,Region Nordjylland,false
 9800,"Hjørring",Hjørring,Region Nordjylland,false
-9830,"Tårs",Hjørring,Region Nordjylland,false
+9830,"Tårs",Frederikshavn,Region Nordjylland,false
 9850,"Hirtshals",Hjørring,Region Nordjylland,false
-9870,"Sindal",Hjørring,Region Nordjylland,false
-9881,"Bindslev",Hjørring,Region Nordjylland,false
+9870,"Sindal",Frederikshavn,Region Nordjylland,false
+9881,"Bindslev",Frederikshavn,Region Nordjylland,false
 9900,"Frederikshavn",Frederikshavn,Region Nordjylland,false
 9940,"Læsø",Læsø,Region Nordjylland,false
 9970,"Strandby",Frederikshavn,Region Nordjylland,false

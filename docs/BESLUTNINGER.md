@@ -63,3 +63,5 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 ## Hosting
 - Supabase-organisation: DSGN (eneste organisation). Tjek om DSGN tilhører NIRAS, før kollegaer inviteres, da medlemmer af organisationen kan se databasen.
 - Repoet er offentligt (gratis Pages). Kun kode og publishable key ligger i repoet, aldrig data.
+
+- Postnumre: PostNords værdier bruges uændret (15. okt). Fejl i kommune rettes senere mod officiel kilde.

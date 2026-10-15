@@ -3,7 +3,7 @@
 | Fase | Indhold | Status |
 |---|---|---|
 | 0 Fundament | Supabase-projekt, repo, docs, CI, migrationsmappe | Færdig |
-| 1 Kontaktdatabase | Skema, RLS, audit, seeds, TEST-data, tests med to brugere | Skema, RLS, audit og TEST-data på plads. To-bruger-test mangler kørsel. Fuld postnummerliste mangler |
+| 1 Kontaktdatabase | Skema, RLS, audit, seeds, TEST-data, tests med to brugere | Færdig: skema, RLS, audit, TEST-data, postnumre (PostNord, uændret) og tests 18/18. Login for begge ejere bekræftet 15. okt |
 | 2 Brugerflade | Login, lister og filtre, detaljesider, dubletadvarsel, Opslagslister, Admin og Privat visning, CSV-import | |
 | 3 Aktiviteter | Aktiviteter, opfølgninger, intel | |
 | 4 Leads | Rammeaftaler, projekter, opportunities | |
