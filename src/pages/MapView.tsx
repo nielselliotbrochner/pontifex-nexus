@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { fetchAll, fullName, type Row } from '../lib/data';
 import { go, href } from '../lib/nav';
 import { geocode, sleep } from '../lib/geocode';
+import { GEO_EVENT } from '../lib/geoWorker';
 import { useAsync } from '../lib/useAsync';
 import denmark from '../data/denmark.json';
 
@@ -21,6 +22,7 @@ export function MapView() {
     ]);
     return { locs, companies, aff, people };
   }, [], 'map');
+  useEffect(() => { let t: number; const h = () => { clearTimeout(t); t = window.setTimeout(reload, 4000); }; window.addEventListener(GEO_EVENT, h); return () => { clearTimeout(t); window.removeEventListener(GEO_EVENT, h); }; }, [reload]);
   const [o, setO] = useState<Opts>({ region: '', sector: '', hqOnly: false, search: '' });
   const set = <K extends keyof Opts>(k: K, v: Opts[K]) => setO((x) => ({ ...x, [k]: v }));
 

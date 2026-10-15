@@ -1,3 +1,4 @@
+import { pokeGeo } from '../lib/geoWorker';
 import { useEffect, useState, type FormEvent } from 'react';
 import { supabase } from '../lib/supabase';
 import { fetchAll, type Row } from '../lib/data';
@@ -234,9 +235,12 @@ function LocForm({ companyId, row, hasHq, onDone }: { companyId: string; row: Ro
       const { error } = row ? await q.neq('id', row.id) : await q;
       if (error) return setErr(error.message);
     }
-    const rec = { company_id: companyId, name: nz(l.name), is_hq: l.is_hq, address: nz(l.address), postal_code: nz(l.postal_code), city: nz(l.city), active: l.active };
+    const rec: Record<string, unknown> = { company_id: companyId, name: nz(l.name), is_hq: l.is_hq, address: nz(l.address), postal_code: nz(l.postal_code), city: nz(l.city), active: l.active };
+    // Ændret adresse: nulstil koordinaterne, så baggrundsopslaget finder dem igen.
+    if (!row || row.address !== rec.address || row.postal_code !== rec.postal_code || row.city !== rec.city) { rec.lat = null; rec.lng = null; }
     const { error } = row ? await supabase.from('company_location').update(rec).eq('id', row.id) : await supabase.from('company_location').insert(rec);
     if (error) return setErr(error.message);
+    pokeGeo();
     onDone(row ? 'Lokationen er gemt.' : 'Lokationen er tilføjet.');
   }
 

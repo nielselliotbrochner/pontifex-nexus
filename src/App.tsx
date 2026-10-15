@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 import { initialLinkType } from './lib/initialHash';
+import { pokeGeo } from './lib/geoWorker';
 import { href, onLink, useRoute } from './lib/nav';
 import { Persons } from './pages/Persons';
 import { Companies } from './pages/Companies';
@@ -94,6 +95,8 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
       setLoaded(true);
     });
   }, [session.user.id]);
+
+  useEffect(() => { if (access?.active) pokeGeo(); }, [access]);
 
   function togglePriv(v: boolean) {
     setPriv(v);
