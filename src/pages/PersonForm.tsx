@@ -4,7 +4,8 @@ import { fetchAll, fullName, type Row } from '../lib/data';
 import { go, href, onLink } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
 import { useLookups, lookupByCode, type Lookups } from '../lib/lookups';
-import { personDupes, type Dupe } from '../lib/dupes';
+import { personDupes, companyDupes, type Dupe } from '../lib/dupes';
+import { pokeGeo } from '../lib/geoWorker';
 import { Field, Picker, Select, nz, setFlash, takeFlash, today, useDebounced } from '../lib/form';
 import { SkeletonCards } from '../lib/ui';
 
@@ -174,6 +175,37 @@ function AffForm({ contactId, row, lk, companies, onDone }: { contactId: string;
     start_date: row?.start_date ?? '', end_date: row?.end_date ?? '', is_primary: row?.is_primary ?? false, note: row?.note ?? '',
   });
   const [err, setErr] = useState('');
+  const [extra, setExtra] = useState<{ id: string; label: string }[]>([]);
+  const [nc, setNc] = useState<{ name: string; cvr: string; postal_code: string; city: string } | null>(null);
+  const [ncDupes, setNcDupes] = useState<Dupe[]>([]);
+  const [ncForce, setNcForce] = useState(false);
+  const [ncErr, setNcErr] = useState('');
+  const ncKey = useDebounced(nc ? JSON.stringify([nc.name, nc.cvr]) : '');
+  useEffect(() => {
+    if (!nc) return;
+    let alive = true;
+    companyDupes({ name: nc.name, cvr: nc.cvr }).then((d) => { if (alive) setNcDupes(d); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ncKey]);
+  async function createCompany() {
+    if (!nc) return;
+    setNcErr('');
+    if (!nc.name.trim()) return setNcErr('Navn mangler.');
+    if (nc.cvr.trim() && !/^\d{8}$/.test(nc.cvr.trim())) return setNcErr('CVR skal være 8 cifre.');
+    if (nc.postal_code && !/^\d{4}$/.test(nc.postal_code)) return setNcErr('Postnummer skal være 4 cifre.');
+    if (ncDupes.some((d) => d.kind === 'cvr')) return setNcErr('CVR-nummeret findes allerede. Vælg virksomheden på listen i stedet.');
+    if (ncDupes.some((d) => d.kind === 'name') && !ncForce) return setNcErr('Navnet findes allerede. Vælg den på listen, eller marker »Opret alligevel«.');
+    const { data, error } = await supabase.from('company').insert({ name: nc.name.trim(), cvr: nz(nc.cvr) }).select('id').single();
+    if (error) return setNcErr(error.message.includes('company_cvr_uq') ? 'CVR-nummeret findes allerede.' : error.message);
+    if (nc.postal_code || nc.city.trim()) {
+      await supabase.from('company_location').insert({ company_id: data.id, is_hq: true, postal_code: nz(nc.postal_code), city: nz(nc.city) });
+      pokeGeo();
+    }
+    setExtra((x) => [...x, { id: data.id, label: nc.cvr.trim() ? `${nc.name.trim()} (${nc.cvr.trim()})` : nc.name.trim() }]);
+    setA((x) => ({ ...x, company_id: data.id, location_id: '' }));
+    setNc(null); setNcDupes([]); setNcForce(false);
+  }
   const set = (k: keyof Aff, v: string | boolean) => setA((x) => ({ ...x, [k]: v }));
   const locs = useAsync(async () => {
     if (!a.company_id) return [] as Row[];
@@ -197,7 +229,31 @@ function AffForm({ contactId, row, lk, companies, onDone }: { contactId: string;
     <form className="card" onSubmit={save} style={{ marginTop: 12 }}>
       <h3>{row ? 'Redigér tilknytning' : 'Ny tilknytning'}</h3>
       <div className="form">
-        <Field label="Virksomhed *"><Picker items={companies} value={a.company_id} onChange={(v) => { set('company_id', v); set('location_id', ''); }} placeholder="Søg virksomhed" /></Field>
+        <Field label="Virksomhed *">
+          <Picker items={[...companies, ...extra]} value={a.company_id} onChange={(v) => { set('company_id', v); set('location_id', ''); }} placeholder="Søg virksomhed" />
+          {!nc && <button type="button" className="small" style={{ marginTop: 4, alignSelf: 'flex-start' }} onClick={() => setNc({ name: '', cvr: '', postal_code: '', city: '' })}>+ Opret ny virksomhed</button>}
+        </Field>
+        {nc && (
+          <div className="card private wide" style={{ gridColumn: '1 / -1' }}>
+            <h3>Ny virksomhed</h3>
+            <div className="form">
+              <Field label="Navn *"><input autoFocus value={nc.name} onChange={(e) => setNc({ ...nc, name: e.target.value })} /></Field>
+              <Field label="CVR"><input inputMode="numeric" maxLength={8} value={nc.cvr} onChange={(e) => setNc({ ...nc, cvr: e.target.value.replace(/\D/g, '') })} /></Field>
+              <Field label="Postnr. (hovedkontor)"><input inputMode="numeric" maxLength={4} value={nc.postal_code} onChange={(e) => setNc({ ...nc, postal_code: e.target.value.replace(/\D/g, '') })} /></Field>
+              <Field label="By"><input value={nc.city} onChange={(e) => setNc({ ...nc, city: e.target.value })} /></Field>
+            </div>
+            {ncDupes.length > 0 && (
+              <p className="warn" role="status">
+                {ncDupes.some((d) => d.kind === 'cvr') ? 'CVR findes allerede: ' : 'Findes måske allerede: '}
+                {ncDupes.map((d) => (d.row.cvr ? `${d.row.name} (${d.row.cvr})` : d.row.name)).join(', ')}
+                {!ncDupes.some((d) => d.kind === 'cvr') && <label style={{ marginLeft: 8 }}><input type="checkbox" checked={ncForce} onChange={(e) => setNcForce(e.target.checked)} /> Opret alligevel</label>}
+              </p>
+            )}
+            {ncErr && <p role="alert" className="err">{ncErr}</p>}
+            <div className="actions"><button type="button" className="primary" onClick={createCompany}>Opret og vælg</button><button type="button" onClick={() => { setNc(null); setNcErr(''); }}>Annullér</button></div>
+            <p className="muted" style={{ margin: '4px 0 0' }}>Brancher, flere lokationer og andet udfyldes bagefter på virksomhedens side.</p>
+          </div>
+        )}
         <Field label="Type *"><Select value={a.affiliation_type_id} onChange={(v) => set('affiliation_type_id', v)} items={lk.affiliation_type} /></Field>
         <Field label="Niveau"><Select value={a.level_id} onChange={(v) => set('level_id', v)} items={lk.level} empty="Ikke angivet" /></Field>
         <Field label="Funktion"><Select value={a.function_id} onChange={(v) => set('function_id', v)} items={lk.job_function} empty="Ikke angivet" /></Field>
