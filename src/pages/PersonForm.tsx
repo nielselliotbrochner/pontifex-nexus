@@ -160,7 +160,7 @@ function Affiliations({ contactId }: { contactId: string }) {
       </table></div>
       {edit === null && <div className="actions"><button onClick={() => setEdit('new')}>Tilføj tilknytning</button></div>}
       {edit !== null && lk.data && (
-        <AffForm key={edit} contactId={contactId} row={edit === 'new' ? null : (rows ?? []).find((r) => r.id === edit) ?? null} lk={lk.data}
+        <AffForm key={edit} contactId={contactId} row={edit === 'new' ? null : (rows ?? []).find((r) => r.id === edit) ?? null} lk={lk.data} others={(rows ?? []).filter((r) => r.is_primary && !r.end_date && r.id !== edit)}
           companies={(companies.data ?? []).map((c) => ({ id: c.id, label: c.cvr ? `${c.name} (${c.cvr})` : c.name }))}
           onDone={(m) => { setEdit(null); if (m) setMsg(m); reload(); }} />
       )}
@@ -168,11 +168,11 @@ function Affiliations({ contactId }: { contactId: string }) {
   );
 }
 
-function AffForm({ contactId, row, lk, companies, onDone }: { contactId: string; row: Row | null; lk: Lookups; companies: { id: string; label: string }[]; onDone: (msg?: string) => void }) {
+function AffForm({ contactId, row, lk, others, companies, onDone }: { contactId: string; row: Row | null; lk: Lookups; others: Row[]; companies: { id: string; label: string }[]; onDone: (msg?: string) => void }) {
   const [a, setA] = useState<Aff>({
     company_id: row?.company_id ?? '', affiliation_type_id: row?.affiliation_type_id ?? lookupByCode(lk.affiliation_type, 'employment'),
     level_id: row?.level_id ?? '', function_id: row?.function_id ?? '', location_id: row?.location_id ?? '',
-    start_date: row?.start_date ?? '', end_date: row?.end_date ?? '', is_primary: row?.is_primary ?? false, note: row?.note ?? '',
+    start_date: row?.start_date ?? '', end_date: row?.end_date ?? '', is_primary: row?.is_primary ?? true, note: row?.note ?? '',
   });
   const [err, setErr] = useState('');
   const [extra, setExtra] = useState<{ id: string; label: string }[]>([]);
@@ -220,6 +220,11 @@ function AffForm({ contactId, row, lk, companies, onDone }: { contactId: string;
     if (a.start_date && a.end_date && a.end_date < a.start_date) return setErr('Slutdato ligger før startdato.');
     const rec = { contact_id: contactId, company_id: a.company_id, affiliation_type_id: a.affiliation_type_id, level_id: nz(a.level_id), function_id: nz(a.function_id), location_id: nz(a.location_id),
       start_date: nz(a.start_date), end_date: nz(a.end_date), is_primary: a.is_primary && !a.end_date, note: nz(a.note) };
+    // Ny primær tilknytning overtager markeringen fra den nuværende.
+    if (rec.is_primary && others.length) {
+      const { error: er } = await supabase.from('contact_company').update({ is_primary: false }).in('id', others.map((o) => o.id));
+      if (er) return setErr(er.message);
+    }
     const { error } = row ? await supabase.from('contact_company').update(rec).eq('id', row.id) : await supabase.from('contact_company').insert(rec);
     if (error) return setErr(error.message.includes('contact_one_primary_uq') ? 'Personen har allerede en primær tilknytning. Afslut den, eller fjern markeringen her.' : error.message);
     onDone(row ? 'Tilknytningen er gemt.' : 'Tilknytningen er tilføjet.');
@@ -260,7 +265,8 @@ function AffForm({ contactId, row, lk, companies, onDone }: { contactId: string;
         <Field label="Sted" hint="Tomt betyder hovedkontor"><Select value={a.location_id} onChange={(v) => set('location_id', v)} items={(locs.data ?? []).map((l) => ({ id: l.id, name: [l.name, l.city].filter(Boolean).join(', ') }))} empty="Hovedkontor (antaget)" /></Field>
         <Field label="Start"><input type="date" value={a.start_date} onChange={(e) => set('start_date', e.target.value)} /></Field>
         <Field label="Slut"><input type="date" value={a.end_date} onChange={(e) => set('end_date', e.target.value)} /></Field>
-        <Field label="Primær"><label><input type="checkbox" checked={a.is_primary} onChange={(e) => set('is_primary', e.target.checked)} /> Personens hovedtilknytning</label></Field>
+        <Field label="Primær"><label><input type="checkbox" checked={a.is_primary} onChange={(e) => set('is_primary', e.target.checked)} /> Personens hovedtilknytning</label>
+          {a.is_primary && !a.end_date && others.length > 0 && <span className="muted">Overtager markeringen fra {others.map((o) => o.company?.name).join(', ')}.</span>}</Field>
         <Field label="Note"><input value={a.note} onChange={(e) => set('note', e.target.value)} /></Field>
       </div>
       {err && <p role="alert" className="err">{err}</p>}
