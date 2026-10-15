@@ -5,6 +5,9 @@ import { fetchAll, fullName, type Row } from '../lib/data';
 import { go, href } from '../lib/nav';
 import { geocode, sleep } from '../lib/geocode';
 import { useAsync } from '../lib/useAsync';
+import denmark from '../data/denmark.json';
+
+const CITIES: [string, number, number][] = [['København', 55.676, 12.568], ['Aarhus', 56.157, 10.211], ['Odense', 55.396, 10.389], ['Aalborg', 57.048, 9.919], ['Esbjerg', 55.476, 8.459], ['Kolding', 55.49, 9.472], ['Roskilde', 55.642, 12.088], ['Herning', 56.139, 8.973], ['Rønne', 55.1, 14.7]];
 
 type Opts = { region: string; sector: string; hqOnly: boolean; search: string };
 
@@ -54,8 +57,9 @@ export function MapView() {
   }, [data, o]);
 
   const box = useRef<HTMLDivElement>(null);
-  const api = useRef<{ L: typeof Leaflet; map: Leaflet.Map; group: Leaflet.MarkerClusterGroup } | null>(null);
+  const api = useRef<{ L: typeof Leaflet; map: Leaflet.Map; group: Leaflet.MarkerClusterGroup; tiles: Leaflet.TileLayer; land: Leaflet.GeoJSON; cities: Leaflet.LayerGroup } | null>(null);
   const [ready, setReady] = useState(false);
+  const [detail, setDetail] = useState(false);
   const fitted = useRef('');
 
   useEffect(() => {
@@ -67,14 +71,17 @@ export function MapView() {
       await import('leaflet/dist/leaflet.css');
       await import('leaflet.markercluster/dist/MarkerCluster.css');
       if (dead || !box.current) return;
-      const map = L.map(box.current, { zoomControl: true }).setView([56.0, 10.6], 7);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsydere' }).addTo(map);
+      const css = getComputedStyle(document.documentElement);
+      const map = L.map(box.current, { zoomControl: true, minZoom: 6, maxZoom: 11, zoomSnap: 0.25, maxBounds: [[53.5, 6.5], [58.8, 16.5]], maxBoundsViscosity: 0.8 }).setView([56.0, 10.6], 7);
+      const land = L.geoJSON(denmark as unknown as GeoJSON.Feature, { style: { fillColor: css.getPropertyValue('--sand-bg').trim(), fillOpacity: 1, color: css.getPropertyValue('--muted').trim(), weight: 0.8, opacity: 0.7 }, interactive: false }).addTo(map);
+      const cities = L.layerGroup(CITIES.map(([n, la, lo]) => L.marker([la, lo], { interactive: false, icon: L.divIcon({ html: n, className: 'nx-city', iconSize: [90, 14], iconAnchor: [-6, 7] }) }))).addTo(map);
+      const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>-bidragsydere' });
       const group = L.markerClusterGroup({
         showCoverageOnHover: false, maxClusterRadius: 45,
         iconCreateFunction: (c) => L.divIcon({ html: `<span>${c.getChildCount()}</span>`, className: 'nx-cluster', iconSize: [34, 34] }),
       });
       map.addLayer(group);
-      api.current = { L, map, group };
+      api.current = { L, map, group, tiles, land, cities };
       setReady(true);
     })();
     return () => { dead = true; api.current?.map.remove(); api.current = null; };
@@ -98,6 +105,16 @@ export function MapView() {
       map.fitBounds(group.getBounds().pad(0.2), { maxZoom: 12 });
     }
   }, [model, ready, o]);
+
+  useEffect(() => {
+    if (!ready || !api.current) return;
+    const { map, tiles, land, cities } = api.current;
+    if (detail) {
+      tiles.addTo(map); map.removeLayer(cities); land.setStyle({ fillOpacity: 0, opacity: 0 }); map.setMaxZoom(18);
+    } else {
+      map.removeLayer(tiles); cities.addTo(map); land.setStyle({ fillOpacity: 1, opacity: 0.7 }); map.setMaxZoom(11);
+    }
+  }, [detail, ready]);
 
   // Find manglende koordinater
   const [geo, setGeo] = useState<{ running: boolean; done: number; total: number; failed: string[] }>({ running: false, done: 0, total: 0, failed: [] });
@@ -135,6 +152,7 @@ export function MapView() {
         <select value={o.region} onChange={(e) => set('region', e.target.value)}><option value="">Alle regioner</option>{model.regions.map((r) => <option key={r}>{r}</option>)}</select>
         <select value={o.sector} onChange={(e) => set('sector', e.target.value)}><option value="">Alle sektorer</option>{model.sectors.map((r) => <option key={r}>{r}</option>)}</select>
         <input placeholder="Søg virksomhed, by eller person" value={o.search} onChange={(e) => set('search', e.target.value)} style={{ minWidth: 240 }} />
+        <label><input type="checkbox" checked={detail} onChange={(e) => setDetail(e.target.checked)} /> Detaljeret kort</label>
         <label><input type="checkbox" checked={o.hqOnly} onChange={(e) => set('hqOnly', e.target.checked)} /> Kun hovedkontorer</label>
         <span className="muted">{loading ? 'Henter...' : `${model.points.length} lokationer på kortet`}</span>
       </div>
