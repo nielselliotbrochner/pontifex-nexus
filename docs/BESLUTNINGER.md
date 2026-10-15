@@ -15,6 +15,9 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Sletning af delte rækker kræver den, der oprettede dem. Andre arkiverer (`active = false`).
 - Ingen dubletter: unikke indekser på normaliseret LinkedIn-URL og CVR, advarsel ved navn og e-mail.
 
+- Hovedlogin til private data er `nebr@niras.dk`. Et andet login (`nielsbrochner@gmail.com`) er også ejer, men har sit eget private lag. Tabt adgang ved fratrædelse fra NIRAS er en kendt risiko. Flytning af private data mellem logins kræver en funktion (fase 7).
+- Login: e-mail og adgangskode (mindst 12 tegn) eller login-link. Selvtilmelding er slået fra i Supabase. Lækkede-adgangskoder-beskyttelse kræver Pro-plan og er ikke slået til.
+
 ## Personer og tilknytninger
 - Én primær aktuel tilknytning pr. person (partielt unikt indeks), flere sekundære (bestyrelse, advisory board m.m.).
 - Tilknytningstype hentes fra en udvidelig tabel (fx Ansættelse, Bestyrelse, Advisory board).
