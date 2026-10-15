@@ -196,9 +196,16 @@ function Locations({ companyId }: { companyId: string }) {
               <td className="inline">
                 <button className="small" onClick={() => setEdit(l.id)}>Redigér</button>
                 <button className="small danger" onClick={async () => {
-                  if (!window.confirm('Slet lokationen?')) return;
-                  const { error } = await supabase.from('company_location').delete().eq('id', l.id);
-                  setMsg(error ? (error.code === '23503' ? 'Kunne ikke slette: lokationen bruges af en persontilknytning.' : `Kunne ikke slette: ${error.message}`) : 'Lokationen er slettet.'); reload();
+                  // Personer knyttet til lokationen flyttes til hovedkontor (ingen lokation), så den kan slettes.
+                  const { count } = await supabase.from('contact_company').select('id', { count: 'exact', head: true }).eq('location_id', l.id);
+                  const txt = count ? `${count} persontilknytning(er) bruger denne lokation og flyttes til hovedkontor. Slet lokationen?` : 'Slet lokationen?';
+                  if (!window.confirm(txt)) return;
+                  if (count) {
+                    const { error: e1 } = await supabase.from('contact_company').update({ location_id: null }).eq('location_id', l.id);
+                    if (e1) { setMsg(`Kunne ikke flytte tilknytninger: ${e1.message}`); return; }
+                  }
+                  const { data: gone, error } = await supabase.from('company_location').delete().eq('id', l.id).select('id');
+                  setMsg(error ? `Kunne ikke slette: ${error.message}` : !gone?.length ? 'Kunne ikke slette: du har ikke ret til at slette lokationen (kun ejeren eller den, der oprettede den).' : 'Lokationen er slettet.'); reload();
                 }}>Slet</button>
               </td>
             </tr>
