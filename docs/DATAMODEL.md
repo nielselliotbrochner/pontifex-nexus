@@ -60,3 +60,8 @@ Alle opslag: code, name, sort_order, active, is_system. Alle kan læses af medle
 - Trigger opretter `app_user` ved invitation. Ingen selvtilmelding.
 - Views er `security_invoker`.
 - `private.is_member()` ligger i schema `private`, så den ikke kan kaldes via REST.
+
+## Aktiviteter
+- `activity_type` (opslagsliste), `activity` (type, dato, titel, tekst, kilde-link, synlighed shared/private).
+- `activity_participant` (aktivitet, person, virksomhed personen repræsenterede), `activity_subject` (aktivitet, person), `activity_company` (aktivitet, virksomhed), `activity_file` (sti i lagerbøtten `activity-files`, filnavn, størrelse).
+- RLS: delt lag for medlemmer. Privat aktivitet kun for skaberen. Børnetabeller og filer følger aktivitetens synlighed.

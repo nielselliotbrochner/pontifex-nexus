@@ -5,7 +5,7 @@
 | 0 Fundament | Supabase-projekt, repo, docs, CI, migrationsmappe | Færdig |
 | 1 Kontaktdatabase | Skema, RLS, audit, seeds, TEST-data, tests med to brugere | Færdig: skema, RLS, audit, TEST-data, postnumre (PostNord, uændret) og tests 18/18. Login for begge ejere bekræftet 15. okt |
 | 2 Brugerflade | Login, lister og filtre, detaljesider, dubletadvarsel, Opslagslister, Admin og Privat visning, bulk-import | Færdig: login, lister med filtre, detaljesider, Privat visning, Admin (opslagslister, tabeller og relationer, brugere), bulk-import via Claude, oprettelses- og redigeringsformularer med dubletadvarsel og sortering på for- og efternavn |
-| 3 Aktiviteter | Aktiviteter, opfølgninger, intel | |
+| 3 Aktiviteter | Aktiviteter, opfølgninger, intel | Påbegyndt: aktiviteter (møde, opkald, mail, research, nyhed, note) med deltagere, emner, filer og kronologi på person og virksomhed. Mangler: opfølgninger, eksport af kronologi, intel |
 | 4 Leads | Rammeaftaler, projekter, opportunities | |
 | 5 Branche-rating | Rating af entreprenører, arkitekter m.fl. | |
 | 6 Visualisering | Relationsgraf, kort, pipeline | Påbegyndt: fanen Netværk (virksomheder, personer, koncerner, private relationer) og fanen Kort (Leaflet, lokationer med personer, koordinater fra OpenStreetMap). Netværket kan centreres på person eller virksomhed med 1 til 3 led (projekter tilføjes i fase 4). Pipeline mangler |

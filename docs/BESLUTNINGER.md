@@ -71,3 +71,12 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 - Navne gemmes som fornavn, mellemnavn og efternavn. Visning er fuldt navn. Personlisten kan sorteres på fornavn eller efternavn.
 - Formularer: LinkedIn og CVR må ikke dubleres (blokeres). Samme e-mail eller samme navn giver en advarsel, og man kan oprette alligevel.
 - Kort: Leaflet med OpenStreetMap-fliser. Koordinater hentes i browseren fra OpenStreetMap (Nominatim, ét opslag i sekundet), da DAWA er lukket (410). Findes adressen ikke, bruges postnummerets midte.
+
+## Aktiviteter (2026-10-15)
+- Research, nyheder og noter er aktiviteter af en bestemt type, så én kronologi dækker alt om en person eller virksomhed. Typerne ligger i opslagslisten Aktivitetstype, som ejeren udvider i Admin.
+- Aktiviteter er i det delte lag: alle medlemmer kan se og redigere dem. Valgfrit »Privat (kun mig)« gør en aktivitet usynlig for andre.
+- Et møde har mange deltagere (`activity_participant`). Hver deltager gemmer den virksomhed, vedkommende repræsenterede på dagen, så historikken er rigtig, selv om personen skifter job.
+- Aktiviteten kan også handle om personer (`activity_subject`) og virksomheder (`activity_company`) uden at de deltog, fx research eller en nyhed.
+- Filer (PDF m.m., op til 25 MB) ligger i privat lagerbøtte `activity-files` med sti `<aktivitet>/<fil>`. Adgang følger aktivitetens synlighed. Filer åbnes via kortlivede signerede links.
+- Aktivitetsteksten skjules, når Privat visning er slået fra.
+- Kronologi pr. person og virksomhed vises på deres sider. Virksomhedens kronologi indeholder aktiviteter om virksomheden og møder, hvor en deltager repræsenterede den.
