@@ -12,8 +12,8 @@ let flashMsg = '';
 export const setFlash = (m: string) => { flashMsg = m; };
 export function takeFlash(): string { const m = flashMsg; flashMsg = ''; return m; }
 
-export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
-  return <label className="fld"><span>{label}</span>{children}{hint && <small className="muted">{hint}</small>}</label>;
+export function Field({ label, children, hint, wide }: { label: string; children: ReactNode; hint?: string; wide?: boolean }) {
+  return <label className={wide ? 'fld wide' : 'fld'}><span>{label}</span>{children}{hint && <small className="muted">{hint}</small>}</label>;
 }
 
 export function Select({ value, onChange, items, empty = '', disabled }: { value: string; onChange: (v: string) => void; items: Row[]; empty?: string; disabled?: boolean }) {

@@ -138,9 +138,8 @@ export function ActivityForm({ id, prefill }: { id: string | null; prefill: stri
         <Field label="Kilde (link)" hint="Fx en nyhed eller artikel"><input value={f.source_url} onChange={(e) => set('source_url', e.target.value)} /></Field>
         <Field label="Synlighed"><label><input type="checkbox" checked={f.priv} onChange={(e) => set('priv', e.target.checked)} /> Privat (kun mig)</label></Field>
         <Field label="Personerne"><label><input type="checkbox" checked={f.present} onChange={(e) => set('present', e.target.checked)} /> deltog (ellers handler aktiviteten om dem)</label></Field>
-        <Field label="Tekst / referat"><textarea style={{ minHeight: 140 }} value={f.body} onChange={(e) => set('body', e.target.value)} /></Field>
-        <div className="fld wide" />
-        <Field label={f.present ? 'Deltagere' : 'Handler om (personer)'}>
+        <Field wide label="Tekst / referat"><textarea style={{ minHeight: 140 }} value={f.body} onChange={(e) => set('body', e.target.value)} /></Field>
+        <Field wide label={f.present ? 'Deltagere' : 'Handler om (personer)'}>
           <Picker items={personItems} value="" onChange={(pid) => { const p = persons.data?.find((r) => r.id === pid); if (p) void addPerson(pid, fullName(p)); }} placeholder="Søg person og tilføj" />
           {people.map((p) => (
             <div key={p.id} className="inline" style={{ marginTop: 4 }}>
@@ -153,7 +152,7 @@ export function ActivityForm({ id, prefill }: { id: string | null; prefill: stri
             </div>
           ))}
         </Field>
-        <Field label="Handler om (virksomheder)">
+        <Field wide label="Handler om (virksomheder)">
           <Picker items={coItems} value="" onChange={(cid) => { const c = companies.data?.find((r) => r.id === cid); if (c) setCos((x) => [...x, { id: cid, name: c.name }]); }} placeholder="Søg virksomhed og tilføj" />
           {cos.map((c) => (
             <div key={c.id} className="inline" style={{ marginTop: 4 }}>
@@ -162,7 +161,7 @@ export function ActivityForm({ id, prefill }: { id: string | null; prefill: stri
             </div>
           ))}
         </Field>
-        <Field label="Filer" hint="PDF, billeder m.m. Højst 25 MB pr. fil">
+        <Field wide label="Filer" hint="PDF, billeder m.m. Højst 25 MB pr. fil">
           <input type="file" multiple onChange={(e) => { setFresh((x) => [...x, ...Array.from(e.target.files ?? [])]); e.target.value = ''; }} />
           {files.map((x) => (
             <div key={x.id} className="inline" style={{ marginTop: 4 }}>{x.file_name}
