@@ -28,12 +28,10 @@ erDiagram
 | `app_user` | Brugere med adgang, rolle (owner, member) |
 | `contact` | Navn, e-mail, telefon, LinkedIn (normaliseret, unik), status, created_by |
 | `company` | Navn, CVR (unik), website, sektor, status, created_by |
-| `company_location` | Navn, type, adresse, postnummer, by, land, lat/lng, aktiv |
-| `contact_company` | Tilknytning: type, niveau, funktion, kontor, primær, fra/til, original titel |
+| `company_location` | Navn, hovedkontor-flag, adresse, postnummer, by, land, lat/lng, aktiv |
+| `contact_company` | Tilknytning: type, niveau, funktion, kontor, primær, fra/til |
 | `company_branch` | Brancher pr. virksomhed, én primær |
 | `company_group`, `company_group_member` | Grupper, rolle pr. medlem |
-| `employee` | Egne kolleger, samme niveau og funktion |
-| `person_link` | Person til person: kollega, tidligere kollega, rapporterer til, samarbejdspartner, mentor |
 | `audit_log` | Hvem ændrede hvad og hvornår |
 | Opslag | `level`, `job_function`, `acquaintance`, `affiliation_type`, `branch` (træ), `sector`, `group_role`, `postcode` (med region og kommune) |
 
@@ -43,11 +41,13 @@ Alle opslag: code, name, sort_order, active, is_system. Alle kan læses af medle
 | Tabel | Indhold |
 |---|---|
 | `contact_relation` | Noter, kendt siden, kendskab, ingen invitation |
+| `person_link` | Person til person: kollega, tidligere kollega, rapporterer til, samarbejdspartner, mentor |
 | `company_relation` | Modenhed (stage), override, ansvarlig, noter |
 | `company_typology` | Typologi-scores |
-| `intel`, `followup`, `label` | Viden, opfølgning, labels |
-| `activity` (+ links) | Møder, opkald, mails |
-| `attachment` | Filer i privat Storage-bucket |
+| `company_typology` | Typologi-scores (senere) |
+| `intel`, `followup`, `label` | Viden, opfølgning, labels (fase 3) |
+| `activity` (+ links) | Møder, opkald, mails (fase 3) |
+| `attachment` | Filer i privat Storage-bucket (fase 3) |
 | `project`, `framework`, `role` | Projekter, rammeaftaler, roller (fase 4) |
 
 ## Regler der skal håndhæves i databasen

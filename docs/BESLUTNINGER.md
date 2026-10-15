@@ -23,8 +23,8 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
   - **Funktion** (på tilknytningen): Ledelse, Projekt og udførelse, Udvikling, Tilbud og bid, Teknik og rådgivning, Indkøb og bygherre, Andet.
   - **Kendskab** (privat, i `contact_relation`): 1 Kender af, 2 Mødt, 3 Kender, 4 Kender godt, 5 Tæt relation.
 - Kolleger bruger samme lister.
-- Original titeltekst bevares i et skjult felt "Oprindelig titel".
-- Åbent: hvordan "Formand" og "PD" fra 1.x-data mappes (forslag: Formand til Direktør/topledelse, PD til Udvikling).
+- Gamle titler fra 1.x (fx "Formand", "PD") udgår, hvis de ikke findes i de nye lister. Der gemmes ingen titeltekst.
+- Data fra 1.x flyttes ikke med. Nexus starter med nye TEST-data (10 virksomheder, 10 personer, alle med TEST foran navnet). Rigtige data indlæses senere efter særskilt beslutning.
 
 ## Virksomheder
 - Branche: todelt træ (fx Entreprenør > Totalentreprenør), flere pr. virksomhed, én primær. Bygherre deles yderligere. Arkitekt, Ingeniør, Advokat som egne grene.
@@ -53,7 +53,9 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 ## Teknik
 - TypeScript, React, Vite. Typer genereres fra skemaet.
 - Migrationer i `supabase/migrations` fra dag ét. Hjælpefunktioner i ikke-eksponeret schema `private`.
-- Dummy-data droppes. Rigtige data (Verka, MTH, AART m.fl.) importeres med script.
+- Kolleger er personer, hvis primære tilknytning er en virksomhed markeret `is_own`. Der er ingen separat medarbejdertabel.
+- Personrelationer (`person_link`) er private, da mentor og samarbejde er personlige vurderinger.
+- Lokalitetstype er et flag `is_hq` (ét hovedkontor pr. virksomhed) og ikke en liste.
 
 ## Hosting
 - Supabase-organisation: DSGN (eneste organisation). Tjek om DSGN tilhører NIRAS, før kollegaer inviteres, da medlemmer af organisationen kan se databasen.
