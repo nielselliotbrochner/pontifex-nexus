@@ -162,7 +162,7 @@ export function ActivityForm({ id, prefill }: { id: string | null; prefill: stri
           ))}
         </Field>
         <Field wide label="Filer" hint="PDF, billeder m.m. Højst 25 MB pr. fil">
-          <input type="file" multiple onChange={(e) => { setFresh((x) => [...x, ...Array.from(e.target.files ?? [])]); e.target.value = ''; }} />
+          <input type="file" multiple onChange={(e) => { const added = Array.from(e.target.files ?? []); e.target.value = ''; setFresh((x) => [...x, ...added]); }} />
           {files.map((x) => (
             <div key={x.id} className="inline" style={{ marginTop: 4 }}>{x.file_name}
               <button type="button" className="small" onClick={() => { setFiles((l) => l.filter((y) => y.id !== x.id)); setRemoved((l) => [...l, x]); }}>Fjern</button></div>
