@@ -1,14 +1,14 @@
 /* NIRAS CVI: Heritage Red #BA1223, Deep Red #700B15, Sand #F2E2D5. Skrift: Aptos og Aptos Serif. */
 :root {
   --red:#BA1223; --deep:#700B15; --sand:#F2E2D5;
-  --bg:#fff; --fg:#241c1b; --muted:#6f6360; --line:#e8dcd2; --soft:#faf5f0; --sand-bg:#F2E2D5;
+  --bg:#fff; --fg:#241c1b; --muted:#6f6360; --line:#e8dcd2; --soft:#faf5f0; --sand-bg:#F2E2D5; --person:#b98a6a;
   --accent:#BA1223; --accent-hover:#700B15; --on-accent:#fff; --link:#BA1223; --head:#700B15; --warn:#9a5b00; --err:#b3261e; --ok:#1a7f4b;
   --sans: Aptos, 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --serif: 'Aptos Serif', 'Iowan Old Style', Georgia, serif;
   --ease: cubic-bezier(.2,.7,.2,1);
 }
 @media (prefers-color-scheme: dark) { :root {
-  --bg:#181111; --fg:#f2e8e3; --muted:#b0a19b; --line:#3a2b2b; --soft:#221818; --sand-bg:#2d2020;
+  --bg:#181111; --fg:#f2e8e3; --muted:#b0a19b; --line:#3a2b2b; --soft:#221818; --sand-bg:#2d2020; --person:#d9b79c;
   --accent:#d6303f; --accent-hover:#ea5663; --link:#f08a93; --head:#f2c9bd; --warn:#e5b45a; --err:#f28b82; --ok:#6fcf97;
 } }
 * { box-sizing: border-box; }
@@ -84,6 +84,12 @@ button.small { padding:3px 9px; font-size:13px; }
 .sorthead button { border:none; background:none; padding:0; font-weight:600; color:var(--head); } .sorthead button:hover { text-decoration:underline; }
 .sorthead .on { color:var(--accent); }
 .sec { margin-top:26px; }
+
+/* Visualisering */
+.netbox { height:calc(100vh - 290px); min-height:460px; border:1px solid var(--line); border-radius:12px; background:var(--bg); }
+.legend { display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; font-size:13px; margin:2px 0 10px; }
+.legend .sw { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
+.legend .sw.sq { border-radius:3px; } .legend .sw.dia { border-radius:1px; transform:rotate(45deg) scale(.85); }
 
 @media (max-width:700px){ dl.kv{grid-template-columns:1fr;} header.top{padding:0 12px;} main.wrap{padding:14px 12px;} }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }

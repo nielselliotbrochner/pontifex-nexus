@@ -8,6 +8,7 @@ import { Companies } from './pages/Companies';
 import { Person } from './pages/Person';
 import { Company } from './pages/Company';
 import { Admin } from './pages/Admin';
+import { Network } from './pages/Network';
 import { PersonForm } from './pages/PersonForm';
 import { CompanyForm } from './pages/CompanyForm';
 
@@ -121,6 +122,7 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
         <nav>
           {tab('personer', 'Personer', ['personer', 'person', 'person-ny', 'person-ret'])}
           {tab('virksomheder', 'Virksomheder', ['virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret'])}
+          {tab('visualisering', 'Visualisering', ['visualisering'])}
           {owner && tab('admin', 'Admin', ['admin'])}
           {tab('konto', 'Konto', ['konto'])}
         </nav>
@@ -139,9 +141,10 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
         {view === 'virksomhed-ny' && <CompanyForm key="ny" id={null} priv={priv} />}
         {view === 'virksomhed-ret' && route.id && <CompanyForm key={route.id} id={route.id} priv={priv} />}
         {view === 'virksomhed' && route.id && <Company id={route.id} priv={priv} />}
+        {view === 'visualisering' && <Network priv={priv} />}
         {view === 'admin' && (owner ? <Admin userId={session.user.id} /> : <p>Kun ejeren har adgang til Admin.</p>)}
         {view === 'konto' && <Account email={session.user.email ?? ''} needsPassword={needsPassword} onPasswordSet={onPasswordSet} />}
-        {!['personer', 'person', 'person-ny', 'person-ret', 'virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret', 'admin', 'konto'].includes(view) && <p>Siden findes ikke.</p>}
+        {!['personer', 'person', 'person-ny', 'person-ret', 'virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret', 'visualisering', 'admin', 'konto'].includes(view) && <p>Siden findes ikke.</p>}
       </main>
     </>
   );

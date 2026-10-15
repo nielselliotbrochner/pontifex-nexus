@@ -1,0 +1,173 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { fetchAll, fullName, type Row } from '../lib/data';
+import { go } from '../lib/nav';
+import { useAsync } from '../lib/useAsync';
+
+type Opts = { persons: boolean; past: boolean; groups: boolean; links: boolean; isolated: boolean; region: string; sector: string; search: string };
+type GNode = { id: string; name: string; kind: 'company' | 'person' | 'group'; ref: string; own?: boolean };
+type GLink = { source: string; target: string; type: 'current' | 'past' | 'group' | 'private'; label: string };
+
+export function Network({ priv }: { priv: boolean }) {
+  const { data, error, loading } = useAsync(async () => {
+    const [companies, persons, aff, members, groups, links] = await Promise.all([
+      fetchAll('v_company_overview', 'company_id, name, is_own, region, sector, active'),
+      fetchAll('v_contact_overview', 'contact_id, first_name, middle_name, last_name, active, region'),
+      fetchAll('contact_company', 'contact_id, company_id, end_date, affiliation_type(name)'),
+      fetchAll('company_group_member', 'group_id, company_id, group_role(name)'),
+      fetchAll('company_group', 'id, name'),
+      priv ? fetchAll('person_link', 'contact_a, contact_b, person_link_type(name)') : Promise.resolve([] as Row[]),
+    ]);
+    return { companies, persons, aff, members, groups, links };
+  }, [priv], `network:${priv}`);
+
+  const [o, setO] = useState<Opts>({ persons: true, past: false, groups: true, links: true, isolated: false, region: '', sector: '', search: '' });
+  const set = <K extends keyof Opts>(k: K, v: Opts[K]) => setO((x) => ({ ...x, [k]: v }));
+
+  const graph = useMemo(() => {
+    if (!data) return { nodes: [] as GNode[], links: [] as GLink[], nCompanies: 0, nPersons: 0 };
+    const nodes = new Map<string, GNode>();
+    const links: GLink[] = [];
+    const filtered = !!(o.region || o.sector);
+    const companies = data.companies.filter((c) => c.active && (!o.region || c.region === o.region) && (!o.sector || c.sector === o.sector));
+    const keep = new Set(companies.map((c) => c.company_id as string));
+    const personById = new Map<string, Row>(data.persons.map((p) => [p.contact_id, p]));
+    const compById = new Map<string, Row>(companies.map((c) => [c.company_id, c]));
+    const addCompany = (id: string) => { const c = compById.get(id)!; nodes.set(`c:${id}`, { id: `c:${id}`, name: c.name, kind: 'company', ref: id, own: c.is_own }); };
+    for (const id of keep) addCompany(id);
+
+    if (o.persons) {
+      const seen = new Set<string>();
+      for (const a of data.aff) {
+        const past = !!a.end_date;
+        if (!keep.has(a.company_id) || (past && !o.past)) continue;
+        const p = personById.get(a.contact_id);
+        if (!p || !p.active) continue;
+        const pid = `p:${a.contact_id}`;
+        const key = `${pid}|${a.company_id}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (!nodes.has(pid)) nodes.set(pid, { id: pid, name: fullName(p), kind: 'person', ref: a.contact_id });
+        links.push({ source: pid, target: `c:${a.company_id}`, type: past ? 'past' : 'current', label: a.affiliation_type?.name ?? '' });
+      }
+      if (o.isolated && !filtered) {
+        for (const p of data.persons) if (p.active && !nodes.has(`p:${p.contact_id}`)) nodes.set(`p:${p.contact_id}`, { id: `p:${p.contact_id}`, name: fullName(p), kind: 'person', ref: p.contact_id });
+      }
+      if (o.links && priv) {
+        for (const l of data.links) {
+          const a = `p:${l.contact_a}`, b = `p:${l.contact_b}`;
+          if (nodes.has(a) && nodes.has(b)) links.push({ source: a, target: b, type: 'private', label: l.person_link_type?.name ?? '' });
+        }
+      }
+    }
+    if (o.groups) {
+      const byGroup = new Map<string, Row[]>();
+      for (const m of data.members) if (keep.has(m.company_id)) (byGroup.get(m.group_id) ?? byGroup.set(m.group_id, []).get(m.group_id)!).push(m);
+      for (const [gid, ms] of byGroup) {
+        if (ms.length < 2) continue;
+        const g = data.groups.find((x) => x.id === gid);
+        const nm = g?.name || `Koncern: ${ms.map((m) => compById.get(m.company_id)?.name).filter(Boolean).slice(0, 2).join(', ')}`;
+        nodes.set(`g:${gid}`, { id: `g:${gid}`, name: nm, kind: 'group', ref: gid });
+        for (const m of ms) links.push({ source: `g:${gid}`, target: `c:${m.company_id}`, type: 'group', label: m.group_role?.name ?? '' });
+      }
+    }
+    const all = [...nodes.values()];
+    return { nodes: all, links, nCompanies: all.filter((n) => n.kind === 'company').length, nPersons: all.filter((n) => n.kind === 'person').length };
+  }, [data, o, priv]);
+
+  const regions = useMemo(() => [...new Set((data?.companies ?? []).map((c) => c.region).filter(Boolean))].sort() as string[], [data]);
+  const sectors = useMemo(() => [...new Set((data?.companies ?? []).map((c) => c.sector).filter(Boolean))].sort() as string[], [data]);
+
+  const box = useRef<HTMLDivElement>(null);
+  const chart = useRef<{ setOption: (o: unknown, n?: boolean) => void; resize: () => void; dispose: () => void; on: (e: string, f: (p: { dataType?: string; data?: { kind: string; ref: string } }) => void) => void } | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let dead = false;
+    let ro: ResizeObserver | undefined;
+    (async () => {
+      const [{ use, init }, { GraphChart }, { TooltipComponent }, { CanvasRenderer }] = await Promise.all([
+        import('echarts/core'), import('echarts/charts'), import('echarts/components'), import('echarts/renderers'),
+      ]);
+      use([GraphChart, TooltipComponent, CanvasRenderer]);
+      if (dead || !box.current) return;
+      const c = init(box.current) as unknown as NonNullable<typeof chart.current>;
+      c.on('click', (p) => {
+        const d = p.data;
+        if (p.dataType !== 'node' || !d) return;
+        if (d.kind === 'person') go('person', d.ref);
+        else if (d.kind === 'company') go('virksomhed', d.ref);
+      });
+      chart.current = c;
+      ro = new ResizeObserver(() => c.resize());
+      ro.observe(box.current);
+      setReady(true);
+    })();
+    return () => { dead = true; ro?.disconnect(); chart.current?.dispose(); chart.current = null; };
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !chart.current) return;
+    const css = getComputedStyle(document.documentElement);
+    const v = (n: string) => css.getPropertyValue(n).trim();
+    const col = { company: v('--accent'), own: v('--head'), person: v('--person'), group: v('--muted'), text: v('--fg'), line: v('--muted'), hi: v('--accent-hover') };
+    const deg = new Map<string, number>();
+    for (const l of graph.links) { deg.set(l.source, (deg.get(l.source) ?? 0) + 1); deg.set(l.target, (deg.get(l.target) ?? 0) + 1); }
+    const s = o.search.trim().toLowerCase();
+    const small = graph.nodes.length <= 80;
+    const data = graph.nodes.map((n) => {
+      const d = deg.get(n.id) ?? 0;
+      const hit = !!s && n.name.toLowerCase().includes(s);
+      return {
+        id: n.id, name: n.name, kind: n.kind, ref: n.ref,
+        symbol: n.kind === 'company' ? 'roundRect' : n.kind === 'group' ? 'diamond' : 'circle',
+        symbolSize: (n.kind === 'company' ? 16 + Math.sqrt(d) * 5 : n.kind === 'group' ? 14 : 9) + (hit ? 8 : 0),
+        itemStyle: { color: n.kind === 'company' ? (n.own ? col.own : col.company) : n.kind === 'group' ? col.group : col.person, borderColor: hit ? col.text : 'transparent', borderWidth: hit ? 3 : 0 },
+        label: { show: n.kind !== 'person' || small || hit, color: col.text, fontSize: 12, position: 'right' },
+      };
+    });
+    const style = (t: GLink['type']) => t === 'current' ? { type: 'solid', width: 1.4, opacity: 0.55, color: col.line }
+      : t === 'past' ? { type: 'dashed', width: 1, opacity: 0.35, color: col.line }
+      : t === 'group' ? { type: 'solid', width: 2.4, opacity: 0.8, color: col.group }
+      : { type: 'dashed', width: 1.6, opacity: 0.9, color: col.company };
+    chart.current.setOption({
+      animationDuration: 400,
+      tooltip: { formatter: (p: { dataType: string; data: { name: string; label?: string; kind?: string } }) => p.dataType === 'edge' ? (p.data.label ?? '') : `${p.data.name}${p.data.kind === 'person' ? ' (person)' : p.data.kind === 'group' ? ' (koncern)' : ''}` },
+      series: [{
+        type: 'graph', layout: 'force', roam: true, draggable: true, data,
+        links: graph.links.map((l) => ({ source: l.source, target: l.target, label: l.label, lineStyle: style(l.type) })),
+        force: { repulsion: 140, gravity: 0.08, edgeLength: [30, 110], friction: 0.2 },
+        emphasis: { focus: 'adjacency', label: { show: true }, lineStyle: { width: 3, opacity: 1 } },
+        edgeSymbol: ['none', 'none'],
+      }],
+    }, true);
+  }, [graph, o.search, ready]);
+
+  if (error) return <p className="err">{error}</p>;
+  return (
+    <>
+      <h1>Visualisering</h1>
+      <div className="filters">
+        <label><input type="checkbox" checked={o.persons} onChange={(e) => set('persons', e.target.checked)} /> Personer</label>
+        <label><input type="checkbox" checked={o.past} onChange={(e) => set('past', e.target.checked)} disabled={!o.persons} /> Tidligere tilknytninger</label>
+        <label><input type="checkbox" checked={o.groups} onChange={(e) => set('groups', e.target.checked)} /> Koncerner</label>
+        {priv && <label><input type="checkbox" checked={o.links} onChange={(e) => set('links', e.target.checked)} disabled={!o.persons} /> Private relationer</label>}
+        <label title="Viser også personer uden tilknytning, når der ikke er valgt region eller sektor"><input type="checkbox" checked={o.isolated} onChange={(e) => set('isolated', e.target.checked)} disabled={!o.persons} /> Personer uden virksomhed</label>
+      </div>
+      <div className="filters">
+        <select value={o.region} onChange={(e) => set('region', e.target.value)}><option value="">Alle regioner</option>{regions.map((r) => <option key={r}>{r}</option>)}</select>
+        <select value={o.sector} onChange={(e) => set('sector', e.target.value)}><option value="">Alle sektorer</option>{sectors.map((r) => <option key={r}>{r}</option>)}</select>
+        <input placeholder="Fremhæv navn" value={o.search} onChange={(e) => set('search', e.target.value)} />
+        <span className="muted">{loading ? 'Henter...' : `${graph.nCompanies} virksomheder, ${graph.nPersons} personer, ${graph.links.length} forbindelser`}</span>
+      </div>
+      <div className="legend">
+        <span><i className="sw sq" style={{ background: 'var(--accent)' }} /> Virksomhed</span>
+        <span><i className="sw sq" style={{ background: 'var(--head)' }} /> Egen virksomhed</span>
+        <span><i className="sw" style={{ background: 'var(--person)' }} /> Person</span>
+        <span><i className="sw dia" style={{ background: 'var(--muted)' }} /> Koncern</span>
+        <span className="muted">Træk i noder, scroll for zoom, hold musen over for at fremhæve forbindelser, klik for at åbne.</span>
+      </div>
+      <div ref={box} className="netbox" role="img" aria-label="Netværk af virksomheder og personer" />
+      {!loading && graph.nodes.length === 0 && <p className="muted">Ingen noder at vise med de valgte filtre.</p>}
+    </>
+  );
+}

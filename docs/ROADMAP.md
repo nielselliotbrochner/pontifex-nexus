@@ -8,7 +8,7 @@
 | 3 Aktiviteter | Aktiviteter, opfølgninger, intel | |
 | 4 Leads | Rammeaftaler, projekter, opportunities | |
 | 5 Branche-rating | Rating af entreprenører, arkitekter m.fl. | |
-| 6 Visualisering | Relationsgraf, kort, pipeline | |
+| 6 Visualisering | Relationsgraf, kort, pipeline | Påbegyndt: fanen Visualisering med netværk af virksomheder, personer, koncerner og private relationer. Kort og pipeline mangler |
 | 7 Flere brugere | Invitation, onboarding af kollega, GDPR-værktøjer | |
 
 Multiuser-modellen designes i fase 1, så fase 7 ikke kræver omstrukturering.
