@@ -6,6 +6,14 @@ import { useAsync } from '../lib/useAsync';
 import { today } from '../lib/form';
 import { SkeletonRows } from '../lib/ui';
 
+type Member = { user_id: string; display_name: string | null };
+async function loadMembers(): Promise<Member[]> {
+  const { data, error } = await supabase.from('app_user').select('user_id, display_name').eq('active', true).order('display_name');
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Member[];
+}
+const nm = (m: Member[], id: string | null) => { const x = m.find((u) => u.user_id === id); return x ? (x.display_name ?? '').split('@')[0] || '?' : '-'; };
+
 const cmpDue = (a: Row, b: Row) => (a.due_on ?? '9999').localeCompare(b.due_on ?? '9999');
 
 async function toggle(f: Row) {
@@ -21,7 +29,7 @@ export function Followups() {
     const { data: rows, error: er } = await supabase.from('activity_followup')
       .select('id, text, due_on, done_at, assigned_to, activity_id, activity(id, title, occurred_on)').order('created_at', { ascending: false }).limit(1000);
     if (er) throw new Error(er.message);
-    return { me: u.user?.id ?? '', rows: (rows ?? []) as unknown as Row[] };
+    return { me: u.user?.id ?? '', rows: (rows ?? []) as unknown as Row[], members: await loadMembers() };
   }, [], 'followups');
   const [err, setErr] = useState('');
   if (error) return <p className="err">{error}</p>;
@@ -50,15 +58,16 @@ export function Followups() {
       {err && <p className="err">{err}</p>}
       <div className="tablewrap">
         <table>
-          <thead><tr><th style={{ width: 30 }}></th><th style={{ width: 100 }}>Frist</th><th>Opfølgning</th><th>Aktivitet</th></tr></thead>
+          <thead><tr><th style={{ width: 30 }}></th><th style={{ width: 100 }}>Frist</th><th>Opfølgning</th><th style={{ width: 110 }}>Ansvarlig</th><th>Aktivitet</th></tr></thead>
           <tbody>
-            {loading && <SkeletonRows cols={4} />}
-            {!loading && shown.length === 0 && <tr><td colSpan={4} className="muted">Ingen opfølgninger.</td></tr>}
+            {loading && <SkeletonRows cols={5} />}
+            {!loading && shown.length === 0 && <tr><td colSpan={5} className="muted">Ingen opfølgninger.</td></tr>}
             {shown.map((r) => (
               <tr key={r.id}>
                 <td><input type="checkbox" checked={!!r.done_at} onChange={() => flip(r)} aria-label="Afsluttet" /></td>
                 <td style={r.due_on && r.due_on < t && !r.done_at ? { color: 'var(--accent)', fontWeight: 600 } : undefined}>{r.due_on ?? '-'}</td>
                 <td style={r.done_at ? { textDecoration: 'line-through', color: 'var(--muted)' } : undefined}>{r.text}</td>
+                <td>{nm(data?.members ?? [], r.assigned_to)}</td>
                 <td><a href={href('aktivitet', r.activity.id)} onClick={(e) => onLink(e, 'aktivitet', r.activity.id)}>{r.activity.title}</a> <span className="muted">{r.activity.occurred_on}</span></td>
               </tr>
             ))}
@@ -70,22 +79,27 @@ export function Followups() {
 }
 
 // Opfølgninger på én aktivitet (tilføj, afslut, slet).
-export function ActivityFollowups({ activityId }: { activityId: string }) {
+export function ActivityFollowups({ activityId, isPrivate }: { activityId: string; isPrivate: boolean }) {
   const { data, reload } = useAsync(async () => {
     const { data: rows, error: er } = await supabase.from('activity_followup').select('*').eq('activity_id', activityId).order('created_at');
     if (er) throw new Error(er.message);
     return (rows ?? []) as Row[];
   }, [activityId], `fu:${activityId}`);
+  const mem = useAsync(async () => {
+    const { data: u } = await supabase.auth.getUser();
+    return { me: u.user?.id ?? '', members: await loadMembers() };
+  }, [], 'members');
   const [text, setText] = useState('');
+  const [who, setWho] = useState('');
   const [due, setDue] = useState('');
   const [err, setErr] = useState('');
   const t = today();
 
   async function add() {
     if (!text.trim()) return;
-    const { error: er } = await supabase.from('activity_followup').insert({ activity_id: activityId, text: text.trim(), due_on: due || null });
+    const { error: er } = await supabase.from('activity_followup').insert({ activity_id: activityId, text: text.trim(), due_on: due || null, assigned_to: who || mem.data?.me || null });
     if (er) return setErr(er.message);
-    setText(''); setDue(''); setErr(''); reload();
+    setText(''); setDue(''); setWho(''); setErr(''); reload();
   }
   async function flip(f: Row) { const { error: er } = await toggle(f); if (er) setErr(er.message); else reload(); }
   async function del(f: Row) {
@@ -101,12 +115,16 @@ export function ActivityFollowups({ activityId }: { activityId: string }) {
           <div key={f.id} className="inline" style={{ marginBottom: 4 }}>
             <input type="checkbox" checked={!!f.done_at} onChange={() => flip(f)} aria-label="Afsluttet" />
             <span style={f.done_at ? { textDecoration: 'line-through', color: 'var(--muted)' } : undefined}>{f.text}</span>
+            <span className="muted">{nm(mem.data?.members ?? [], f.assigned_to)}</span>
             {f.due_on && <span className={f.due_on < t && !f.done_at ? 'tag' : 'muted'}>{f.due_on}</span>}
             <button className="small" onClick={() => del(f)}>Slet</button>
           </div>
         ))}
         <div className="inline" style={{ marginTop: 6 }}>
           <input placeholder="Ny opfølgning" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void add(); } }} style={{ flex: '1 1 220px' }} />
+          {!isPrivate && <select value={who || mem.data?.me || ''} onChange={(e) => setWho(e.target.value)} aria-label="Ansvarlig">
+            {(mem.data?.members ?? []).map((m) => <option key={m.user_id} value={m.user_id}>{nm(mem.data!.members, m.user_id)}</option>)}
+          </select>}
           <input type="date" value={due} onChange={(e) => setDue(e.target.value)} aria-label="Frist" />
           <button className="primary" onClick={add}>Tilføj</button>
         </div>

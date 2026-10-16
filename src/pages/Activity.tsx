@@ -69,7 +69,7 @@ export function Activity({ id, priv }: { id: string; priv: boolean }) {
           ))}
         </div>
       </div>
-      <ActivityFollowups activityId={id} />
+      <ActivityFollowups activityId={id} isPrivate={a.visibility === 'private'} />
       <h2>Tekst</h2>
       {priv
         ? <div className="card" style={{ whiteSpace: 'pre-wrap' }}>{a.body || <span className="muted">Ingen tekst.</span>}</div>

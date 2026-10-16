@@ -86,3 +86,4 @@ Alle beslutninger er truffet af Niels i dialogen om Nexus (oktober 2026). Ændre
 ## Opfølgninger (2026-10-16)
 - Tabel `activity_followup` (tekst, frist, ansvarlig = oprettelsesbrugeren, afsluttet-tidspunkt). Synlighed følger aktiviteten via RLS.
 - Tilføjes, afsluttes og slettes på aktivitetssiden. Fanen »Opfølgninger« viser åbne på tværs, standard »Mine«, forfaldne markeres.
+- Opfølgninger kan tildeles en aktiv kollega (standard dig selv). Private aktiviteter tildeles kun til dig. Navne hentes fra `app_user.display_name` (e-mailens første del).
