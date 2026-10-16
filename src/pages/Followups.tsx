@@ -14,6 +14,10 @@ async function loadMembers(): Promise<Member[]> {
 }
 const nm = (m: Member[], id: string | null) => { const x = m.find((u) => u.user_id === id); return x ? (x.display_name ?? '').split('@')[0] || '?' : '-'; };
 
+async function assign(id: string, to: string) {
+  return supabase.from('activity_followup').update({ assigned_to: to }).eq('id', id);
+}
+
 const cmpDue = (a: Row, b: Row) => (a.due_on ?? '9999').localeCompare(b.due_on ?? '9999');
 
 async function toggle(f: Row) {
@@ -67,7 +71,10 @@ export function Followups() {
                 <td><input type="checkbox" checked={!!r.done_at} onChange={() => flip(r)} aria-label="Afsluttet" /></td>
                 <td style={r.due_on && r.due_on < t && !r.done_at ? { color: 'var(--accent)', fontWeight: 600 } : undefined}>{r.due_on ?? '-'}</td>
                 <td style={r.done_at ? { textDecoration: 'line-through', color: 'var(--muted)' } : undefined}>{r.text}</td>
-                <td>{nm(data?.members ?? [], r.assigned_to)}</td>
+                <td><select value={r.assigned_to ?? ''} aria-label="Ansvarlig" onChange={async (e) => { const { error: er } = await assign(r.id, e.target.value); if (er) setErr(er.message); else { setErr(''); reload(); } }}>
+                  {!r.assigned_to && <option value="">-</option>}
+                  {(data?.members ?? []).map((m) => <option key={m.user_id} value={m.user_id}>{nm(data!.members, m.user_id)}</option>)}
+                </select></td>
                 <td><a href={href('aktivitet', r.activity.id)} onClick={(e) => onLink(e, 'aktivitet', r.activity.id)}>{r.activity.title}</a> <span className="muted">{r.activity.occurred_on}</span></td>
               </tr>
             ))}
@@ -115,7 +122,12 @@ export function ActivityFollowups({ activityId, isPrivate }: { activityId: strin
           <div key={f.id} className="inline" style={{ marginBottom: 4 }}>
             <input type="checkbox" checked={!!f.done_at} onChange={() => flip(f)} aria-label="Afsluttet" />
             <span style={f.done_at ? { textDecoration: 'line-through', color: 'var(--muted)' } : undefined}>{f.text}</span>
-            <span className="muted">{nm(mem.data?.members ?? [], f.assigned_to)}</span>
+            {isPrivate
+              ? <span className="muted">{nm(mem.data?.members ?? [], f.assigned_to)}</span>
+              : <select value={f.assigned_to ?? ''} aria-label="Ansvarlig" onChange={async (e) => { const { error: er } = await assign(f.id, e.target.value); if (er) setErr(er.message); else reload(); }}>
+                  {!f.assigned_to && <option value="">-</option>}
+                  {(mem.data?.members ?? []).map((m) => <option key={m.user_id} value={m.user_id}>{nm(mem.data!.members, m.user_id)}</option>)}
+                </select>}
             {f.due_on && <span className={f.due_on < t && !f.done_at ? 'tag' : 'muted'}>{f.due_on}</span>}
             <button className="small" onClick={() => del(f)}>Slet</button>
           </div>
