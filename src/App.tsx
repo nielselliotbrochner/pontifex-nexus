@@ -13,6 +13,7 @@ import { Network } from './pages/Network';
 import { MapView } from './pages/MapView';
 import { Activities } from './pages/Activities';
 import { Activity } from './pages/Activity';
+import { Followups } from './pages/Followups';
 import { ActivityForm } from './pages/ActivityForm';
 import { PersonForm } from './pages/PersonForm';
 import { CompanyForm } from './pages/CompanyForm';
@@ -130,6 +131,7 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
           {tab('personer', 'Personer', ['personer', 'person', 'person-ny', 'person-ret'])}
           {tab('virksomheder', 'Virksomheder', ['virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret'])}
           {tab('aktiviteter', 'Aktiviteter', ['aktiviteter', 'aktivitet', 'aktivitet-ny', 'aktivitet-ret'])}
+          {tab('opfoelgninger', 'Opfølgninger', ['opfoelgninger'])}
           {tab('kort', 'Kort', ['kort'])}
           {tab('visualisering', 'Netværk', ['visualisering'])}
           {owner && tab('admin', 'Admin', ['admin'])}
@@ -154,11 +156,12 @@ function Home({ session, needsPassword, onPasswordSet }: { session: Session; nee
         {view === 'aktivitet' && route.id && <Activity id={route.id} priv={priv} />}
         {view === 'aktivitet-ny' && <ActivityForm key={'ny' + route.id} id={null} prefill={route.id} />}
         {view === 'aktivitet-ret' && route.id && <ActivityForm key={route.id} id={route.id} prefill={null} />}
+        {view === 'opfoelgninger' && <Followups />}
         {view === 'kort' && <MapView />}
         {view === 'visualisering' && <Network priv={priv} focus={route.id} />}
         {view === 'admin' && (owner ? <Admin userId={session.user.id} /> : <p>Kun ejeren har adgang til Admin.</p>)}
         {view === 'konto' && <Account email={session.user.email ?? ''} needsPassword={needsPassword} onPasswordSet={onPasswordSet} />}
-        {!['personer', 'person', 'person-ny', 'person-ret', 'virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret', 'visualisering', 'kort', 'aktiviteter', 'aktivitet', 'aktivitet-ny', 'aktivitet-ret', 'admin', 'konto'].includes(view) && <p>Siden findes ikke.</p>}
+        {!['personer', 'person', 'person-ny', 'person-ret', 'virksomheder', 'virksomhed', 'virksomhed-ny', 'virksomhed-ret', 'visualisering', 'kort', 'aktiviteter', 'aktivitet', 'aktivitet-ny', 'aktivitet-ret', 'opfoelgninger', 'admin', 'konto'].includes(view) && <p>Siden findes ikke.</p>}
       </main>
     </>
   );

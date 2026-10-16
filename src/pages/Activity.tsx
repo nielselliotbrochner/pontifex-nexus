@@ -5,6 +5,7 @@ import { go, href, onLink } from '../lib/nav';
 import { useAsync } from '../lib/useAsync';
 import { takeFlash } from '../lib/form';
 import { SkeletonCards } from '../lib/ui';
+import { ActivityFollowups } from './Followups';
 
 export function Activity({ id, priv }: { id: string; priv: boolean }) {
   const { data: a, error, loading } = useAsync(async () => {
@@ -68,6 +69,7 @@ export function Activity({ id, priv }: { id: string; priv: boolean }) {
           ))}
         </div>
       </div>
+      <ActivityFollowups activityId={id} />
       <h2>Tekst</h2>
       {priv
         ? <div className="card" style={{ whiteSpace: 'pre-wrap' }}>{a.body || <span className="muted">Ingen tekst.</span>}</div>
